@@ -1,0 +1,28 @@
+{
+  "name": "nisseoppdrag",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @nisseoppdrag/web dev",
+    "build": "pnpm --filter @nisseoppdrag/web build",
+    "lint": "pnpm --filter @nisseoppdrag/web lint",
+    "typecheck": "pnpm --filter @nisseoppdrag/web typecheck",
+    "test": "pnpm --filter @nisseoppdrag/web test",
+    "e2e": "pnpm --filter @nisseoppdrag/web e2e",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "supabase": "^2.121.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "supabase",
+      "esbuild"
+    ]
+  }
+}
