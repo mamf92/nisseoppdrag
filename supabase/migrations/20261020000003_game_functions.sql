@@ -272,7 +272,7 @@ language plpgsql volatile security definer set search_path = '' as $$
 declare v_wp uuid := private.require_admin(); v_code text;
 begin
   if p_days not between 1 and 90 then raise exception 'invalid_input'; end if;
-  v_code := upper(substr(translate(encode(extensions.gen_random_bytes(12), 'base64'), '+/=0O1Il', ''), 1, 10));
+  v_code := upper(substr(translate(encode(extensions.gen_random_bytes(24), 'base64'), '+/=0O1Il', ''), 1, 10));
   insert into public.invites (workplace_id, code_hash, role, expires_at, created_by)
   values (v_wp, extensions.digest(v_code, 'sha256'), p_role, now() + make_interval(days => p_days), auth.uid());
   insert into public.audit_log (workplace_id, actor, action, target) values (v_wp, auth.uid(), 'invite.create', p_role::text);
@@ -283,6 +283,10 @@ create function public.admin_set_role(p_member uuid, p_role public.member_role) 
 language plpgsql volatile security definer set search_path = '' as $$
 declare v_wp uuid := private.require_admin();
 begin
+  -- Serialize admin changes per workplace, then recheck under the lock, so two
+  -- admins demoting each other cannot both pass the last-admin check.
+  perform 1 from public.workplaces where id = v_wp for update;
+  if not private.is_admin_of(v_wp) then raise exception 'forbidden'; end if;
   if p_role = 'player' and (select count(*) from public.members where workplace_id = v_wp and role = 'admin') <= 1
      and exists (select 1 from public.members where id = p_member and role = 'admin') then
     raise exception 'last_admin';
@@ -296,6 +300,8 @@ create function public.admin_remove_member(p_member uuid) returns void
 language plpgsql volatile security definer set search_path = '' as $$
 declare v_wp uuid := private.require_admin();
 begin
+  perform 1 from public.workplaces where id = v_wp for update;
+  if not private.is_admin_of(v_wp) then raise exception 'forbidden'; end if;
   if exists (select 1 from public.members where id = p_member and user_id = auth.uid()) then raise exception 'cannot_remove_self'; end if;
   delete from public.members where id = p_member and workplace_id = v_wp;
   if not found then raise exception 'not_found'; end if;
