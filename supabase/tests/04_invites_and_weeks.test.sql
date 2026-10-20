@@ -54,7 +54,7 @@ select '30000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-00000000
 from public.seasons s join public.challenges c on c.workplace_id = s.workplace_id and c.category = 'social'
 where s.workplace_id = '10000000-0000-0000-0000-000000000001' limit 1;
 
-select plan(14);
+select plan(15);
 
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000d', 'd@annet.no');
@@ -78,6 +78,11 @@ select throws_ok('select admin_create_invite(''player'', 0)', 'P0001', 'invalid_
 select throws_ok('select admin_create_invite(''player'', 91)', 'P0001', 'invalid_input', 'the expiry is bounded above');
 reset role;
 select is((select count(*)::int from public.invites where created_by = '00000000-0000-0000-0000-00000000000a'), 0, 'a refused call stores no invite');
+
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
+select is((select min(length(public.admin_create_invite('player', 1))) from generate_series(1, 300)), 10,
+          'every invite code is exactly ten characters');
+reset role;
 
 -- the week window
 reset role;
