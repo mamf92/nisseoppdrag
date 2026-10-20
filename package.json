@@ -13,7 +13,8 @@
     "test": "pnpm --filter @nisseoppdrag/web test",
     "e2e": "pnpm --filter @nisseoppdrag/web e2e",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "gen:types": "bash scripts/gen-types.sh"
   },
   "devDependencies": {
     "prettier": "^3.9.10",
