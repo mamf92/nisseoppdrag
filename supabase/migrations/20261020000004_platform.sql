@@ -45,7 +45,7 @@ begin
   insert into public.challenges (workplace_id, category, title_nb, title_en, body_nb, body_en, difficulty, points, created_by)
   select v_wp, t.category, t.title_nb, t.title_en, t.body_nb, t.body_en, t.difficulty, t.points, auth.uid()
   from public.catalog_templates t;
-  v_code := upper(substr(translate(encode(extensions.gen_random_bytes(12), 'base64'), '+/=0O1Il', ''), 1, 10));
+  v_code := upper(substr(translate(encode(extensions.gen_random_bytes(24), 'base64'), '+/=0O1Il', ''), 1, 10));
   insert into public.invites (workplace_id, code_hash, role, expires_at, created_by)
   values (v_wp, extensions.digest(v_code, 'sha256'), 'admin', now() + interval '30 days', auth.uid());
   insert into public.audit_log (workplace_id, actor, action, target) values (v_wp, auth.uid(), 'workplace.create', p_slug);
