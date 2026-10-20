@@ -17,7 +17,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm build && pnpm preview --host 127.0.0.1',
+    command: 'VITE_DEV_UI=true pnpm build && pnpm preview --host 127.0.0.1',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env['CI'],
     timeout: 120_000,
