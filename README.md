@@ -35,13 +35,10 @@ If a Chromium is preinstalled, point Playwright at it with `PLAYWRIGHT_CHROMIUM_
 
 Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` reach the browser. No service-role key, SMTP password or access token belongs in the repo. Supabase is deliberately not linked to GitHub; migrations reach staging and prod through CI after review.
 
-## Branch protection (Martin applies this once)
+## Deployment
 
-Settings → Branches → add a rule for `main`:
+Vercel's GitHub integration deploys: `main` goes to Production, every other branch and PR gets a Preview. Vercel settings: Root Directory `apps/web`, framework Vite, other commands left to `apps/web/vercel.json`. Environment variables (public values only): `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, with the prod project on Production and the staging project on Preview.
 
-- Require a pull request before merging (1 approval)
-- Require status checks to pass: `web` and `database`, branch up to date
-- Require conversation resolution
-- Block force pushes and deletions
+## Branch protection
 
-Also enable Dependabot alerts and secret scanning (free on public repos). Consider making the repo private.
+`main` is protected by a GitHub ruleset: pull request required (0 approvals), status checks `web` and `database`, no force pushes, no deletion. Also enable Dependabot alerts and secret scanning. Consider making the repo private.
