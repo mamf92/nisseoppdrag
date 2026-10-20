@@ -3,7 +3,7 @@
 -- Rule: the only personal data is auth.users.email (managed by Supabase Auth).
 -- Nothing here copies the email; players appear under a self-chosen nisse_name.
 
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 create schema if not exists private;          -- internal helpers, not exposed by PostgREST
 revoke all on schema private from public, anon, authenticated;
