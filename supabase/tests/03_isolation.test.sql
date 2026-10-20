@@ -46,7 +46,7 @@ insert into public.achievements (code, name_nb, name_en, description_nb, descrip
   ('open_badge', 'Åpen', 'Open', 'x', 'x', 'star', 0, '{"type":"total_completed","n":1}', false),
   ('secret_badge', 'Hemmelig', 'Secret', 'x', 'x', 'star', 0, '{"type":"total_completed","n":99}', true);
 
-select plan(23);
+select plan(24);
 
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
@@ -61,7 +61,8 @@ select ensure_my_week() is not null as c_week \gset
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
 select is((select count(*)::int from public.assignments where member_id <> private.my_member_id()), 0, 'b sees no foreign assignments');
-select is((select count(*)::int from public.points_ledger), 1, 'b sees only the own ledger');
+select is((select count(*)::int from public.points_ledger where reason = 'challenge'), 1, 'b sees only the own ledger');
+select is((select count(*)::int from public.points_ledger where member_id <> private.my_member_id()), 0, 'b sees no foreign ledger rows');
 
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
@@ -100,11 +101,11 @@ select lives_ok('select admin_set_role(''20000000-0000-0000-0000-00000000000a'',
 -- ---------- secret achievements ----------
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
-select is((select array_agg(code order by code) from public.achievements), array['open_badge'], 'secret badges are hidden until unlocked');
+select is((select array_agg(code order by code) from public.achievements where code in ('open_badge', 'secret_badge')), array['open_badge'], 'secret badges are hidden until unlocked');
 reset role;
 insert into public.member_achievements (member_id, achievement_code) values ('20000000-0000-0000-0000-00000000000b', 'secret_badge');
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
-select is((select array_agg(code order by code) from public.achievements), array['open_badge', 'secret_badge'], 'an unlocked secret badge shows');
+select is((select array_agg(code order by code) from public.achievements where code in ('open_badge', 'secret_badge')), array['open_badge', 'secret_badge'], 'an unlocked secret badge shows');
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000c');
 select is((select count(*)::int from public.member_achievements), 0, 'badges of another workplace are not visible');
