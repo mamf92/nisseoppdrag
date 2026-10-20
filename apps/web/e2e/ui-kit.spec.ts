@@ -17,7 +17,7 @@ async function open(page: Page) {
 }
 
 for (const size of WIDTHS) {
-  test.describe(`${size.name} (${size.width} px)`, () => {
+  test.describe(`${size.name} (${String(size.width)} px)`, () => {
     test.use({ viewport: { width: size.width, height: size.height } });
 
     test('fits the screen and renders both themes', async ({ page }) => {
@@ -25,7 +25,7 @@ for (const size of WIDTHS) {
       for (const theme of ['gaarden', 'laaven']) {
         const frame = page.getByTestId(`frame-${theme}`);
         await expect(frame).toBeVisible();
-        await frame.screenshot({ path: `screenshots/ui-${theme}-${size.width}.png` });
+        await frame.screenshot({ path: `screenshots/ui-${theme}-${String(size.width)}.png` });
       }
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
