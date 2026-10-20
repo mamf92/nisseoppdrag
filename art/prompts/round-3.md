@@ -1,6 +1,7 @@
 # Nisseoppdrag – prompt pack round 3: «Spor etter nissen»
 
 Version 1, 2026-10-20. Martin's brief for round 3:
+
 - use the rugged, somber nisser from round 2;
 - keep round 1's clear blue nights, sharp stars, moon and warm lantern light;
 - add more of the fun and mystery from R-12, the porridge in the snow.
@@ -9,11 +10,11 @@ The husnisse was someone you knew was there, who helped out and sometimes played
 
 ## How the three rounds fit together
 
-| Round | Feel | Use it for |
-| --- | --- | --- |
-| 1 «Velkommen til nisseverden» | Warm, cosy, many nisser together | Onboarding, the badge medallions, the season-start moment: where the app invites you into the world |
-| 2 «Stille natt» | Dark, solemn, lonely | Reference for the nisser's faces and clothes (R-01), plus R-12 and R-16, which stay |
-| 3 «Spor etter nissen» | Clear starry night, warm light, mostly traces, a glimpse of him at most | Everyday screens: home, login, hatches, empty and error states, season over |
+| Round                         | Feel                                                                    | Use it for                                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| 1 «Velkommen til nisseverden» | Warm, cosy, many nisser together                                        | Onboarding, the badge medallions, the season-start moment: where the app invites you into the world |
+| 2 «Stille natt»               | Dark, solemn, lonely                                                    | Reference for the nisser's faces and clothes (R-01), plus R-12 and R-16, which stay                 |
+| 3 «Spor etter nissen»         | Clear starry night, warm light, mostly traces, a glimpse of him at most | Everyday screens: home, login, hatches, empty and error states, season over                         |
 
 ## Style in one paragraph
 
@@ -87,6 +88,7 @@ Same scene as the uploaded R-17 image: a fjord horse dozing in its stall with sm
 ### T-20 to T-24 Hatch paintings: what he left behind · square · attach R-01 for style · `T-20-social.png` and so on
 
 These are small paintings for a finished hatch (one per category), shown at about 60 px, so they need one simple object, big and centred. Send them one at a time and swap in the bracket text:
+
 - **T-20 Sosialt:** "two small wooden ale bowls (kåser) left side by side on a snowy beam, still steaming";
 - **T-21 Vennlighet:** "a pair of mended red mittens left neatly on a doorstep, a tiny clog print beside them";
 - **T-22 Læring:** "an old open book with small round spectacles resting on it, next to a candle stub";
