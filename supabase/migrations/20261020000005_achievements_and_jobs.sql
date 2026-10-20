@@ -98,13 +98,15 @@ begin
     if v_ok then
       insert into public.member_achievements (member_id, achievement_code) values (p_member, v_ach.code)
       on conflict do nothing;
-      if found and v_ach.bonus_points > 0 then
-        select week_start into v_week from public.assignments where member_id = p_member order by week_start desc limit 1;
-        insert into public.points_ledger (member_id, season_id, week_start, reason, delta, achievement_code)
-        values (p_member, p_season, coalesce(v_week, private.week_of(v_tz)), 'achievement', v_ach.bonus_points, v_ach.code)
-        on conflict do nothing;
+      if found then
+        if v_ach.bonus_points > 0 then
+          select week_start into v_week from public.assignments where member_id = p_member order by week_start desc limit 1;
+          insert into public.points_ledger (member_id, season_id, week_start, reason, delta, achievement_code)
+          values (p_member, p_season, coalesce(v_week, private.week_of(v_tz)), 'achievement', v_ach.bonus_points, v_ach.code)
+          on conflict do nothing;
+        end if;
+        v_new := v_new || v_ach.code;
       end if;
-      v_new := v_new || v_ach.code;
     end if;
   end loop;
   return v_new;
