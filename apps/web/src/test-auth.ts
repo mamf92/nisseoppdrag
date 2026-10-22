@@ -10,6 +10,8 @@ export interface FakeOptions {
   session?: boolean;
   /** What `rpc('me')` returns. */
   me?: unknown;
+  /** Fails `rpc('me')` until `recover()` is called. */
+  meError?: Failure | null;
   otpError?: Failure | null;
   verifyError?: Failure | null;
   redeemError?: Failure | null;
@@ -29,6 +31,7 @@ export const MEMBER_ME = {
 export function fakeClient(options: FakeOptions = {}) {
   let session: Session | null = options.session ? ({ access_token: 't' } as Session) : null;
   let me = options.me ?? null;
+  let meError = options.meError ?? null;
   const listeners: ((event: string, s: Session | null) => void)[] = [];
   const calls = {
     signInWithOtp: vi.fn(),
@@ -64,7 +67,7 @@ export function fakeClient(options: FakeOptions = {}) {
     },
     rpc: (name: string, args?: unknown) => {
       calls.rpc(name, args);
-      if (name === 'me') return Promise.resolve({ data: me, error: null });
+      if (name === 'me') return Promise.resolve({ data: meError ? null : me, error: meError });
       if (name === 'redeem_invite') {
         if (options.redeemError) return Promise.resolve({ data: null, error: options.redeemError });
         me = MEMBER_ME;
@@ -73,5 +76,8 @@ export function fakeClient(options: FakeOptions = {}) {
       return Promise.resolve({ data: null, error: null });
     },
   };
-  return { client: client as unknown as Db, calls };
+  const recover = () => {
+    meError = null;
+  };
+  return { client: client as unknown as Db, calls, recover };
 }

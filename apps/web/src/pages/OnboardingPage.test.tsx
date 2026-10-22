@@ -51,6 +51,17 @@ describe('onboarding', () => {
     expect(calls.rpc).not.toHaveBeenCalledWith('redeem_invite', expect.anything());
   });
 
+  it('lets the user type a new code after the remembered one was refused', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'OLD');
+    const user = userEvent.setup();
+    const { client } = fakeClient({ ...SIGNED_IN, redeemError: { message: 'invite_invalid' } });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    expect(screen.queryByLabelText('Invitasjonskode')).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Bli med' }));
+    expect(await screen.findByLabelText('Invitasjonskode')).toBeInTheDocument();
+    expect(window.sessionStorage.getItem('nisse-invite')).toBeNull();
+  });
+
   it.each([
     ['invite_invalid', /Invitasjonskoden er ugyldig/],
     ['domain_not_allowed', /E-postadressen din hører ikke til/],

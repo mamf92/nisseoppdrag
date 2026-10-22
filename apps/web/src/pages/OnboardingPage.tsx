@@ -76,7 +76,7 @@ export function OnboardingPage() {
   const t = useT();
   const { redeemInvite, signOut } = useAuth();
   const navigate = useNavigate();
-  const [storedCode] = useState(() => readInvite());
+  const [storedCode, setStoredCode] = useState(() => readInvite());
   const [code, setCode] = useState(storedCode ?? '');
   const [name, setName] = useState(() => generateNisseName());
   const [cap, setCap] = useState<string>(CAP_COLOURS[0]);
@@ -102,9 +102,14 @@ export function OnboardingPage() {
     }
     const key = errorKey(failure);
     if (key === 'error.name_taken') setErrors({ name: t(key) });
-    else if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed')
+    else if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
+      // A code from /bli-med/:code that was refused can be replaced in the field.
+      if (storedCode) {
+        clearInvite();
+        setStoredCode(null);
+      }
       setErrors({ code: t(key) });
-    else setErrors({ form: t(key) });
+    } else setErrors({ form: t(key) });
   }
 
   return (
@@ -122,7 +127,6 @@ export function OnboardingPage() {
             }}
           />
         )}
-        {storedCode && errors.code ? <p role="alert">{errors.code}</p> : null}
         <div className="flex items-center gap-4">
           <NisseAvatar look={{ cap, beard }} size={72} />
           <div className="grid flex-1 gap-2">

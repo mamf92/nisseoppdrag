@@ -86,6 +86,8 @@
   "colour.blond": "Blond",
   "colour.brown": "Brown",
   "colour.dark": "Dark",
+  "error.load": "Could not load your account. Check your connection and try again.",
+  "error.retry": "Try again",
   "error.generic": "Something went wrong. Please try again in a moment.",
   "error.invalid_email": "Enter a valid email address.",
   "error.code_invalid": "The code is wrong or has expired. Try again, or go back and ask for a new one.",

@@ -24,7 +24,9 @@ export type AuthState =
   | { status: 'signedOut' }
   // Signed in, but not a member of any workplace yet: the next step is onboarding.
   | { status: 'signedIn'; me: null }
-  | { status: 'member'; me: Me };
+  | { status: 'member'; me: Me }
+  // Membership could not be loaded (network or server); not the same as having none.
+  | { status: 'error' };
 
 export interface AuthError {
   message: string;
@@ -37,6 +39,8 @@ interface AuthContextValue {
   sendCode: (email: string) => Promise<AuthError | null>;
   verifyCode: (email: string, code: string) => Promise<AuthError | null>;
   signOut: () => Promise<void>;
+  /** Loads the session and membership again, e.g. after a failed load. */
+  retry: () => Promise<void>;
   /** Joins a workplace and loads the new membership. */
   redeemInvite: (code: string, nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
   updateProfile: (nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
@@ -76,7 +80,7 @@ export function parseMe(value: unknown): Me | null {
 async function loadState(client: Db, session: Session | null): Promise<AuthState> {
   if (!session) return { status: 'signedOut' };
   const { data, error } = await client.rpc('me');
-  if (error) return { status: 'signedIn', me: null };
+  if (error) return { status: 'error' };
   const me = parseMe(data);
   return me ? { status: 'member', me } : { status: 'signedIn', me: null };
 }
@@ -124,6 +128,7 @@ export function AuthProvider({
     const missing: AuthError = { message: 'not_configured' };
     return {
       state,
+      retry: reload,
       async sendCode(email) {
         if (!client) return missing;
         const { error } = await client.auth.signInWithOtp({

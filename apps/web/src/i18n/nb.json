@@ -86,6 +86,8 @@
   "colour.blond": "Blond",
   "colour.brown": "Brun",
   "colour.dark": "Mørk",
+  "error.load": "Kunne ikke laste kontoen din. Sjekk nettet og prøv igjen.",
+  "error.retry": "Prøv igjen",
   "error.generic": "Noe gikk galt. Prøv igjen om litt.",
   "error.invalid_email": "Skriv inn en gyldig e-postadresse.",
   "error.code_invalid": "Koden stemmer ikke eller har gått ut. Prøv igjen, eller gå tilbake og be om en ny.",
