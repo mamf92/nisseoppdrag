@@ -1,0 +1,176 @@
+/* The two themes as CSS variables. Names are identical in both; components never use raw colours.
+   Source of truth: design/design-system.html (v2.0). Gården is the default until a theme is chosen. */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-line: var(--line);
+  --color-success: var(--success);
+  --color-on-cat: var(--on-cat);
+  --color-cat-social: var(--cat-social);
+  --color-cat-kindness: var(--cat-kindness);
+  --color-cat-learning: var(--cat-learning);
+  --color-cat-collab: var(--cat-collab);
+  --color-cat-holiday: var(--cat-holiday);
+  --radius-card: var(--radius);
+  --radius-btn: var(--radius-btn);
+  --font-display: var(--font-display-stack);
+  --font-body: var(--font-body-stack);
+}
+
+/* Gården «Full låve!»: cream postcard paper, navy ink, barn red, brass. */
+:root,
+[data-nisse-theme='gaarden'] {
+  --bg: #f3ede1;
+  --bg-2: #e9e0cf;
+  --surface: #fbf7ee;
+  --surface-2: #fffdf8;
+  --ink: #16233d;
+  --ink-muted: #4e5a70;
+  --primary: #b5222b;
+  --on-primary: #fff8ec;
+  --accent: #b8862b;
+  --line: rgb(22 35 61 / 0.16);
+  --success: #4d6b2e;
+  --cat-social: #c2602a;
+  --cat-kindness: #b4466a;
+  --cat-learning: #3f6e9c;
+  --cat-collab: #5a7a32;
+  --cat-holiday: #a87b16;
+  --on-cat: #fff8ec;
+  --radius: 5px;
+  --radius-btn: 6px;
+  --display-variation: 'SOFT' 50, 'WONK' 0;
+  --font-display-stack: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body-stack: 'Alegreya Sans', 'Trebuchet MS', sans-serif;
+  /* component tokens: what differs between postcard paper and carved wood */
+  --accent-text: var(--primary);
+  --error-ink: var(--primary);
+  --cat-ink-mix: 18%;
+  --btn-primary-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.22);
+  --btn-dark-bg: #16233d;
+  --btn-dark-ink: #fff8ec;
+  --btn-dark-shadow: none;
+  --btn-ghost-shadow: inset 0 0 0 1.5px rgb(22 35 61 / 0.35);
+  --chip-bg: var(--surface);
+  --tile-radius: 50% 50% 46% 46%;
+  --tile-inset: 0.18;
+  --tile-ring: #fbf7ee;
+  --mission-bg: var(--surface);
+  --mission-shadow:
+    0 0 0 1px rgb(22 35 61 / 0.22), inset 0 0 0 4px var(--surface),
+    inset 0 0 0 5px rgb(184 134 43 / 0.45), 0 6px 16px rgb(22 35 61 / 0.06);
+  --mission-done-shadow:
+    0 0 0 1px var(--success), inset 0 0 0 4px var(--surface), inset 0 0 0 5px var(--success);
+  --hatch-bg: #fffdf8;
+  --hatch-shadow:
+    0 0 0 1px rgb(22 35 61 / 0.25), inset 0 0 0 3px #fffdf8, inset 0 0 0 4px rgb(184 134 43 / 0.5);
+  --hatch-lbl-ink: var(--ink-muted);
+  --lb-row-bg: var(--surface);
+  --badge-shadow: drop-shadow(0 3px 5px rgb(22 35 61 / 0.25));
+  --nav-bg: var(--surface);
+  --nav-rail-bg: var(--bg-2);
+  color-scheme: light;
+}
+
+/* Låven «Grøt til nissen!»: the night barn, Kittelsen's lonely nisse. */
+[data-nisse-theme='laaven'] {
+  --bg: #161d2b;
+  --bg-2: #1f2940;
+  --surface: #3a2a1e;
+  --surface-2: #4a3626;
+  --ink: #f4eee2;
+  --ink-muted: #cdbb9f;
+  --primary: #c2382b;
+  --on-primary: #fff6ea;
+  --accent: #f4b740;
+  --line: rgb(244 183 64 / 0.3);
+  --success: #a9bc6e;
+  --cat-social: #e9973f;
+  --cat-kindness: #e27e90;
+  --cat-learning: #8fb6d8;
+  --cat-collab: #a9bc6e;
+  --cat-holiday: #ebcb6e;
+  --on-cat: #1b140e;
+  --radius: 6px;
+  --radius-btn: 6px;
+  --display-variation: 'SOFT' 100, 'WONK' 1;
+  /* component tokens */
+  --accent-text: var(--accent);
+  --error-ink: #ff9d8f;
+  --cat-ink-mix: 0%;
+  --btn-primary-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.28), 0 0 0 1px #7e2119;
+  --btn-dark-bg: var(--surface-2);
+  --btn-dark-ink: var(--ink);
+  --btn-dark-shadow: inset 0 0 0 1px var(--line);
+  --btn-ghost-shadow: inset 0 0 0 1.5px var(--line);
+  --chip-bg: rgb(244 183 64 / 0.12);
+  --tile-radius: 50% 50% 46% 46%;
+  --tile-inset: 0.25;
+  --tile-ring: #2a1e15;
+  --mission-bg:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0) 0 46px, rgb(0 0 0 / 0.16) 46px 48px),
+    linear-gradient(180deg, #45321f, #3a2a1e);
+  --mission-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.4), 0 0 0 3px #2a1e15, 0 0 0 4px var(--line);
+  --mission-done-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.4), 0 0 0 3px #2a1e15, 0 0 0 4px var(--accent),
+    0 0 30px rgb(244 183 64 / 0.35);
+  --hatch-bg: linear-gradient(180deg, #f3eee3, #e6dcc8);
+  --hatch-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25), 0 0 0 2px #2a1e15;
+  --hatch-lbl-ink: #6b5640;
+  --lb-row-bg: rgb(255 255 255 / 0.04);
+  --badge-shadow: drop-shadow(0 4px 6px rgb(0 0 0 / 0.35));
+  --nav-bg: #2a1e15;
+  --nav-rail-bg: #2a1e15;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body-stack);
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  [data-nisse-theme='gaarden'] body,
+  :root:not([data-nisse-theme]) body {
+    background-image: radial-gradient(rgb(120 90 40 / 0.05) 1px, transparent 1px);
+    background-size: 6px 6px;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display-stack);
+    font-variation-settings: var(--display-variation);
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

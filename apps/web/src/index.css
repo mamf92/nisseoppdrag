@@ -1,26 +1,4 @@
 @import 'tailwindcss';
-
-/* Placeholder themes; real tokens and self-hosted fonts arrive in WP4. */
-:root,
-[data-nisse-theme='laaven'] {
-  --color-bg: #1d1a16;
-  --color-fg: #f3ead8;
-  --font-display: Georgia, 'Times New Roman', serif;
-  --font-body: system-ui, sans-serif;
-}
-[data-nisse-theme='verkstedet'] {
-  --color-bg: #fbf8f3;
-  --color-fg: #1d1a16;
-  --font-display: system-ui, sans-serif;
-  --font-body: system-ui, sans-serif;
-}
-
-@theme inline {
-  --font-display: var(--font-display);
-}
-
-body {
-  background: var(--color-bg);
-  color: var(--color-fg);
-  font-family: var(--font-body);
-}
+@import './themes/fonts.css';
+@import './themes/tokens.css';
+@import './ui/ui.css';
