@@ -29,7 +29,9 @@ describe('routing and guards', () => {
   it('sends a signed-in user without a workplace to onboarding', async () => {
     const { client } = fakeClient({ session: true });
     renderWithProviders(<App />, { client });
-    expect(await screen.findByRole('heading', { name: 'Velg nissenavn' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Hvilken gruppe skal du bli med i?' }),
+    ).toBeInTheDocument();
   });
 
   it('keeps a member out of onboarding', async () => {
