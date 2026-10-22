@@ -1,0 +1,184 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import type { Db } from '../lib/supabase';
+
+export type Avatar = {
+  cap?: string;
+  beard?: string;
+};
+
+export interface Me {
+  memberId: string;
+  workplaceId: string;
+  workplaceName: string;
+  role: 'player' | 'admin';
+  nisseName: string;
+  avatar: Avatar;
+  isPlatformAdmin: boolean;
+}
+
+export type AuthState =
+  | { status: 'loading' }
+  | { status: 'signedOut' }
+  // Signed in, but not a member of any workplace yet: the next step is onboarding.
+  | { status: 'signedIn'; me: null }
+  | { status: 'member'; me: Me }
+  // Membership could not be loaded (network or server); not the same as having none.
+  | { status: 'error' };
+
+export interface AuthError {
+  message: string;
+  status?: number | undefined;
+  code?: string | undefined;
+}
+
+interface AuthContextValue {
+  state: AuthState;
+  sendCode: (email: string) => Promise<AuthError | null>;
+  verifyCode: (email: string, code: string) => Promise<AuthError | null>;
+  signOut: () => Promise<void>;
+  /** Loads the session and membership again, e.g. after a failed load. */
+  retry: () => Promise<void>;
+  /** Joins a workplace and loads the new membership. */
+  redeemInvite: (code: string, nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
+  updateProfile: (nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function str(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+// public.me() returns null for a signed-in user without a membership.
+export function parseMe(value: unknown): Me | null {
+  if (!isRecord(value)) return null;
+  const memberId = str(value['member_id']);
+  const workplaceId = str(value['workplace_id']);
+  const nisseName = str(value['nisse_name']);
+  if (!memberId || !workplaceId || !nisseName) return null;
+  const avatar = isRecord(value['avatar']) ? value['avatar'] : {};
+  const cap = str(avatar['cap']);
+  const beard = str(avatar['beard']);
+  return {
+    memberId,
+    workplaceId,
+    workplaceName: str(value['workplace_name']) ?? '',
+    role: value['role'] === 'admin' ? 'admin' : 'player',
+    nisseName,
+    avatar: { ...(cap ? { cap } : {}), ...(beard ? { beard } : {}) },
+    isPlatformAdmin: value['is_platform_admin'] === true,
+  };
+}
+
+async function loadState(client: Db, session: Session | null): Promise<AuthState> {
+  if (!session) return { status: 'signedOut' };
+  const { data, error } = await client.rpc('me');
+  if (error) return { status: 'error' };
+  const me = parseMe(data);
+  return me ? { status: 'member', me } : { status: 'signedIn', me: null };
+}
+
+export function AuthProvider({
+  children,
+  client = supabase,
+}: {
+  children: ReactNode;
+  client?: Db | null;
+}) {
+  const [state, setState] = useState<AuthState>(
+    client ? { status: 'loading' } : { status: 'signedOut' },
+  );
+
+  useEffect(() => {
+    if (!client) return;
+    let active = true;
+    const apply = (session: Session | null) => {
+      void loadState(client, session).then((next) => {
+        if (active) setState(next);
+      });
+    };
+    void client.auth.getSession().then(({ data }) => {
+      apply(data.session);
+    });
+    const { data } = client.auth.onAuthStateChange((event, session) => {
+      // The initial session is read above; token refreshes do not change who the user is.
+      if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
+      apply(session);
+    });
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, [client]);
+
+  const reload = useCallback(async () => {
+    if (!client) return;
+    const { data } = await client.auth.getSession();
+    setState(await loadState(client, data.session));
+  }, [client]);
+
+  const value = useMemo<AuthContextValue>(() => {
+    const missing: AuthError = { message: 'not_configured' };
+    return {
+      state,
+      retry: reload,
+      async sendCode(email) {
+        if (!client) return missing;
+        const { error } = await client.auth.signInWithOtp({
+          email: email.trim(),
+          options: { shouldCreateUser: true },
+        });
+        return error;
+      },
+      async verifyCode(email, code) {
+        if (!client) return missing;
+        const { error } = await client.auth.verifyOtp({
+          email: email.trim(),
+          token: code.trim(),
+          type: 'email',
+        });
+        return error;
+      },
+      async signOut() {
+        if (client) await client.auth.signOut();
+        setState({ status: 'signedOut' });
+      },
+      async redeemInvite(code, nisseName, avatar) {
+        if (!client) return missing;
+        const { error } = await client.rpc('redeem_invite', {
+          p_code: code,
+          p_nisse_name: nisseName.trim(),
+          p_avatar: avatar,
+        });
+        if (error) return error;
+        await reload();
+        return null;
+      },
+      async updateProfile(nisseName, avatar) {
+        if (!client) return missing;
+        const { error } = await client.rpc('update_profile', {
+          p_nisse_name: nisseName.trim(),
+          p_avatar: avatar,
+        });
+        if (error) return error;
+        await reload();
+        return null;
+      },
+    };
+  }, [client, state, reload]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  return ctx;
+}
