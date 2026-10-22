@@ -151,6 +151,40 @@ export type Database = {
           },
         ];
       };
+      catalog_templates: {
+        Row: {
+          body_en: string;
+          body_nb: string;
+          category: Database['public']['Enums']['challenge_category'];
+          difficulty: number;
+          id: number;
+          points: number;
+          title_en: string;
+          title_nb: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body_en?: string;
+          body_nb?: string;
+          category: Database['public']['Enums']['challenge_category'];
+          difficulty?: number;
+          id?: never;
+          points?: number;
+          title_en: string;
+          title_nb: string;
+        };
+        Update: {
+          body_en?: string;
+          body_nb?: string;
+          category?: Database['public']['Enums']['challenge_category'];
+          difficulty?: number;
+          id?: never;
+          points?: number;
+          title_en?: string;
+          title_nb?: string;
+        };
+        Relationships: [];
+      };
       challenges: {
         Row: {
           archived_at: string | null;
@@ -534,7 +568,56 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      admin_adjust_points: {
+        Args: { p_delta: number; p_member: string; p_note: string };
+        Returns: undefined;
+      };
+      admin_create_invite: {
+        Args: { p_days?: number; p_role: Database['public']['Enums']['member_role'] };
+        Returns: string;
+      };
+      admin_remove_member: { Args: { p_member: string }; Returns: undefined };
+      admin_set_role: {
+        Args: { p_member: string; p_role: Database['public']['Enums']['member_role'] };
+        Returns: undefined;
+      };
+      admin_stats: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_upsert_season: {
+        Args: {
+          p_ends: string;
+          p_hour: number;
+          p_id: string;
+          p_name: string;
+          p_starts: string;
+          p_status: Database['public']['Enums']['season_status'];
+        };
+        Returns: string;
+      };
+      complete_assignment: { Args: { p_assignment: string }; Returns: Json };
+      ensure_my_week: { Args: Record<PropertyKey, never>; Returns: Json };
+      leaderboard: {
+        Args: { p_scope?: string };
+        Returns: {
+          avatar: Json;
+          member_id: string;
+          nisse_name: string;
+          points: number;
+          rank: number;
+        }[];
+      };
+      me: { Args: Record<PropertyKey, never>; Returns: Json };
+      platform_create_workplace: {
+        Args: { p_allowed_domains?: string[]; p_name: string; p_slug: string };
+        Returns: string;
+      };
+      platform_health: { Args: Record<PropertyKey, never>; Returns: string };
+      redeem_invite: {
+        Args: { p_avatar: Json; p_code: string; p_nisse_name: string };
+        Returns: Json;
+      };
+      reroll_assignment: { Args: { p_assignment: string }; Returns: Json };
+      skip_assignment: { Args: { p_assignment: string }; Returns: Json };
+      update_profile: { Args: { p_avatar: Json; p_nisse_name: string }; Returns: undefined };
     };
     Enums: {
       assignment_status: 'open' | 'completed' | 'skipped' | 'rerolled';
