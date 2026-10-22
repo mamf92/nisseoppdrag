@@ -39,6 +39,7 @@ begin
   set local role anon;
 end $$;
 
+delete from public.catalog_templates;  -- the seeded starter catalog is tested in 11_starter_catalog
 insert into public.catalog_templates (category, title_nb, title_en, points) values
   ('social', 'Spis lunsj med en ny', 'Lunch with someone new', 10),
   ('kindness', 'Si takk til en kollega', 'Thank a colleague', 10);
