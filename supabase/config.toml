@@ -244,6 +244,16 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Sign-in e-mails carry the 6-digit code. A first-time sign-in sends the "confirmation" template,
+# a returning one the "magic_link" template, so both show {{ .Token }}.
+[auth.email.template.confirmation]
+subject = "Din innloggingskode til Nisseoppdrag"
+content_path = "./supabase/templates/code.html"
+
+[auth.email.template.magic_link]
+subject = "Din innloggingskode til Nisseoppdrag"
+content_path = "./supabase/templates/code.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
