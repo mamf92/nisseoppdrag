@@ -62,7 +62,7 @@ describe('onboarding', () => {
     await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
     expect(document.documentElement.dataset['nisseTheme']).toBe('laaven');
     await toNameStep(user);
-    const farmer = await screen.findByLabelText<HTMLInputElement>('Navn');
+    const farmer = await screen.findByLabelText<HTMLInputElement>('Karakternavn');
     expect(farmer.value).toMatch(/^\S+ \S+$/);
 
     await user.click(screen.getByRole('button', { name: 'Tilbake' }));
@@ -108,7 +108,7 @@ describe('onboarding', () => {
     const { client, calls } = fakeClient(SIGNED_IN);
     renderWithProviders(<App />, { client, route: '/onboarding' });
     await toNameStep(user);
-    const name = await screen.findByLabelText(/^(Nissenavn|Navn)$/);
+    const name = await screen.findByLabelText(/^(Nissenavn|Karakternavn)$/);
     await user.clear(name);
     await user.type(name, 'a@b');
     await user.click(screen.getByRole('button', { name: 'Bli med' }));
