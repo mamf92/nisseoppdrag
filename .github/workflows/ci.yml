@@ -57,4 +57,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec supabase db start
       - run: pnpm exec supabase test db
+      - name: Generated types are up to date
+        run: |
+          pnpm gen:types
+          git diff --exit-code apps/web/src/lib/database.types.ts
       - run: pnpm exec supabase db lint --level warning
