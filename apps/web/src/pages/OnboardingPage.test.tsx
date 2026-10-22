@@ -19,7 +19,7 @@ describe('onboarding', () => {
     window.localStorage.clear();
   });
 
-  it('joins with the remembered invite code, the story and the chosen look', async () => {
+  it('joins with the remembered invite code, the story and a chosen name', async () => {
     window.sessionStorage.setItem('nisse-invite', 'ABC123');
     const user = userEvent.setup();
     const { client, calls } = fakeClient(SIGNED_IN);
@@ -31,14 +31,12 @@ describe('onboarding', () => {
     const name = await screen.findByLabelText('Nissenavn');
     await user.clear(name);
     await user.type(name, 'Lykteta');
-    await user.click(screen.getByRole('radio', { name: 'Blå' }));
-    await user.click(screen.getByRole('radio', { name: 'Brun' }));
     await user.click(screen.getByRole('button', { name: 'Bli med' }));
 
     expect(calls.rpc).toHaveBeenCalledWith('redeem_invite', {
       p_code: 'ABC123',
       p_nisse_name: 'Lykteta',
-      p_avatar: { cap: '#2b4a8a', beard: '#8a5a33' },
+      p_avatar: {},
     });
     expect(await screen.findByText(/^Hei, /)).toBeInTheDocument();
     expect(window.sessionStorage.getItem('nisse-invite')).toBeNull();

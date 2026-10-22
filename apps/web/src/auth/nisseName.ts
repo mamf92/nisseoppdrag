@@ -68,6 +68,3 @@ export function isValidNisseName(name: string): boolean {
   const trimmed = name.trim();
   return trimmed.length >= NAME_MIN && trimmed.length <= NAME_MAX && !/[<>@]/.test(trimmed);
 }
-
-export const CAP_COLOURS = ['#b3262a', '#2f6b3a', '#2b4a8a', '#7a3b82', '#c9801f'] as const;
-export const BEARD_COLOURS = ['#f4efe4', '#c9c3b5', '#d8a45a', '#8a5a33', '#4a3a2a'] as const;
