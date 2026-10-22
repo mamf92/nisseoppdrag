@@ -76,7 +76,7 @@ select ensure_my_week() -> 'slots' -> 0 ->> 'assignment_id' as a1,
 select is((complete_assignment(:'a1'::uuid) ->> 'points')::int, (select points::int from public.challenges c join public.assignments a on a.challenge_id = c.id where a.id = :'a1'::uuid),
           'completing pays the challenge points');
 select throws_ok(format('select complete_assignment(%L)', :'a1'), 'P0001', 'not_open', 'a completed slot cannot be completed again');
-select is((select count(*)::int from public.points_ledger), 1, 'one ledger row');
+select is((select count(*)::int from public.points_ledger where reason = 'challenge'), 1, 'one challenge ledger row');
 
 -- ---------- skip: one per week ----------
 select lives_ok(format('select skip_assignment(%L)', :'a2'), 'skip works once');
@@ -95,7 +95,7 @@ select is((select status::text from public.assignments where id = :'a4'::uuid), 
 select is(jsonb_array_length(ensure_my_week() -> 'slots'), 5, 'still five live slots after skip and reroll');
 
 -- ---------- ledger and leaderboard ----------
-select is((select count(*)::int from public.points_ledger), 1, 'skip and reroll pay nothing');
+select is((select count(*)::int from public.points_ledger where reason = 'challenge'), 1, 'skip and reroll pay nothing');
 select is((select points::int from leaderboard('season') where nisse_name = 'Lyktenissen'),
           (select sum(delta)::int from public.points_ledger), 'the leaderboard shows the ledger total');
 select is((select count(*)::int from leaderboard('season')), 2, 'the leaderboard lists the workplace only');
