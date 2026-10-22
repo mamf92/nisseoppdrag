@@ -6,27 +6,29 @@ import { expect, test } from '@playwright/test';
 // E2E_SUPABASE_SERVICE_KEY from `supabase status -o env`; locally the test is skipped without them.
 const url = process.env['E2E_SUPABASE_URL'];
 const serviceKey = process.env['E2E_SUPABASE_SERVICE_KEY'];
-const inbucket = process.env['E2E_INBUCKET_URL'] ?? 'http://127.0.0.1:54324';
+const mailpit = process.env['E2E_MAIL_URL'] ?? 'http://127.0.0.1:54324';
 
 test.skip(!url || !serviceKey, 'needs a local Supabase stack');
 
-interface Message {
-  id: string;
+interface Summary {
+  ID: string;
 }
 
-async function readCode(mailbox: string): Promise<string> {
+// The local stack's mail catcher is Mailpit (Inbucket in older CLI versions).
+async function readCode(address: string): Promise<string> {
   for (let attempt = 0; attempt < 30; attempt++) {
-    const list = await fetch(`${inbucket}/api/v1/mailbox/${mailbox}`);
-    if (list.ok) {
-      const messages = (await list.json()) as Message[];
-      const last = messages[messages.length - 1];
-      if (last) {
-        const body = (await (
-          await fetch(`${inbucket}/api/v1/mailbox/${mailbox}/${last.id}`)
-        ).json()) as {
-          body: { text: string };
+    const found = await fetch(
+      `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:${address}`)}`,
+    );
+    if (found.ok) {
+      const { messages } = (await found.json()) as { messages: Summary[] };
+      const latest = messages[0];
+      if (latest) {
+        const mail = (await (await fetch(`${mailpit}/api/v1/message/${latest.ID}`)).json()) as {
+          Text: string;
+          HTML: string;
         };
-        const match = /\b(\d{6})\b/.exec(body.body.text);
+        const match = /\b(\d{6})\b/.exec(`${mail.Text} ${mail.HTML}`);
         if (match?.[1]) return match[1];
       }
     }
@@ -57,7 +59,7 @@ test('a new colleague signs in with a code and joins through an invite', async (
   await expect(page).toHaveURL(/\/logg-inn$/);
   await page.getByLabel('E-post').fill(`${mailbox}@example.com`);
   await page.getByRole('button', { name: 'Send kode' }).click();
-  await page.getByLabel('Kode').fill(await readCode(mailbox));
+  await page.getByLabel('Kode').fill(await readCode(`${mailbox}@example.com`));
   await page.getByRole('button', { name: 'Logg inn' }).click();
 
   await expect(page).toHaveURL(/\/onboarding$/);
