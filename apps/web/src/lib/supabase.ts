@@ -5,7 +5,9 @@ import type { Database } from './database.types';
 export type Db = SupabaseClient<Database>;
 
 const url: unknown = import.meta.env['VITE_SUPABASE_URL'];
-const key: unknown = import.meta.env['VITE_SUPABASE_ANON_KEY'];
+// README and .env.example name the key VITE_SUPABASE_PUBLISHABLE_KEY; the old ANON name still works.
+const key: unknown =
+  import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || import.meta.env['VITE_SUPABASE_ANON_KEY'];
 
 // The publishable (anon) key is meant for the browser; row level security does the protecting.
 // Without both variables the app still renders and sign-in explains what is missing.
