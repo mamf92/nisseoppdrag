@@ -97,6 +97,7 @@
   "error.load": "Could not load your account. Check your connection and try again.",
   "error.retry": "Try again",
   "error.generic": "Something went wrong. Please try again in a moment.",
+  "error.not_configured": "The app is missing its database settings. Tell your administrator.",
   "error.invalid_email": "Enter a valid email address.",
   "error.code_invalid": "The code is wrong or has expired. Try again, or go back and ask for a new one.",
   "error.rate_limit": "You have asked for many codes. Wait a little and try again.",
