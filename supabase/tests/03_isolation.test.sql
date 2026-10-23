@@ -78,7 +78,7 @@ select is((select count(*)::int from public.assignments), 5, 'c sees only the ow
 select is((select count(*)::int from public.workplaces), 1, 'c sees only the own workplace');
 select is((select count(*)::int from public.challenges where workplace_id = '10000000-0000-0000-0000-000000000001'), 0, 'c cannot read the other catalog');
 select throws_ok(format('select complete_assignment(%L)', :'b1'), 'P0001', 'not_found', 'c cannot complete b''s assignment');
-select is((select count(*)::int from leaderboard('season') where nisse_name = 'Lyktenissen'), 0, 'the leaderboard never crosses workplaces');
+select is((select count(*)::int from leaderboard('season') where name = 'Lyktenissen'), 0, 'the leaderboard never crosses workplaces');
 select lives_ok('update public.challenges set points = 50 where workplace_id = ''10000000-0000-0000-0000-000000000001''', 'a foreign catalog update is accepted by SQL ...');
 reset role;
 select is((select count(*)::int from public.challenges where points = 50), 0, '... but touched no rows');

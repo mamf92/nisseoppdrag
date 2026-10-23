@@ -35,8 +35,8 @@ describe('onboarding', () => {
 
     expect(calls.rpc).toHaveBeenCalledWith('redeem_invite', {
       p_code: 'ABC123',
-      p_nisse_name: 'Lykteta',
-      p_avatar: {},
+      p_story: 'gaarden',
+      p_name: 'Lykteta',
     });
     expect(await screen.findByText(/^Hei, /)).toBeInTheDocument();
     expect(window.sessionStorage.getItem('nisse-invite')).toBeNull();
@@ -54,19 +54,46 @@ describe('onboarding', () => {
     expect(await screen.findByRole('heading', { name: 'Velg din historie' })).toBeInTheDocument();
   });
 
-  it('suggests a name that fits the story and follows it when the story changes', async () => {
+  it('picks a farmer name from the lists in Låven and a nisse name in Gården', async () => {
     window.sessionStorage.setItem('nisse-invite', 'ABC123');
     const user = userEvent.setup();
-    renderWithProviders(<App />, { client: fakeClient(SIGNED_IN).client, route: '/onboarding' });
+    const { client, calls } = fakeClient(SIGNED_IN);
+    renderWithProviders(<App />, { client, route: '/onboarding' });
 
     await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
     expect(document.documentElement.dataset['nisseTheme']).toBe('laaven');
     await toNameStep(user);
-    const farmer = await screen.findByLabelText<HTMLInputElement>('Karakternavn');
-    expect(farmer.value).toMatch(/^\S+ \S+$/);
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Kvinnenavn' }));
+    await user.selectOptions(screen.getByLabelText('Fornavn'), 'Sigrid');
+    await user.selectOptions(screen.getByLabelText('Gårdsnavn'), 'Vik');
+    expect(screen.getByText('Sigrid Vik')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Bli med' }));
+    expect(calls.rpc).toHaveBeenCalledWith('redeem_invite', {
+      p_code: 'ABC123',
+      p_story: 'laaven',
+      p_name: 'Sigrid Vik',
+    });
+  });
 
-    await user.click(screen.getByRole('button', { name: 'Tilbake' }));
-    await user.click(screen.getByRole('radio', { name: /Full låve/ }));
+  it('switches the first-name list with the kind of name and can draw a random farmer', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    renderWithProviders(<App />, { client: fakeClient(SIGNED_IN).client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
+    await toNameStep(user);
+    await user.click(screen.getByRole('button', { name: 'Mannsnavn' }));
+    expect(screen.getByRole('option', { name: 'Ola' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Kari' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Tilfeldig' }));
+    expect(screen.getByLabelText('Fornavn')).toBeInTheDocument();
+  });
+
+  it('suggests a nisse name in Gården and offers a new one', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    renderWithProviders(<App />, { client: fakeClient(SIGNED_IN).client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Full låve/ }));
     await toNameStep(user);
     const nisse = await screen.findByLabelText<HTMLInputElement>('Nissenavn');
     expect(nisse.value).toMatch(/(nissen|nissa|tufsen)$/);
@@ -108,7 +135,7 @@ describe('onboarding', () => {
     const { client, calls } = fakeClient(SIGNED_IN);
     renderWithProviders(<App />, { client, route: '/onboarding' });
     await toNameStep(user);
-    const name = await screen.findByLabelText(/^(Nissenavn|Karakternavn)$/);
+    const name = await screen.findByLabelText('Nissenavn');
     await user.clear(name);
     await user.type(name, 'a@b');
     await user.click(screen.getByRole('button', { name: 'Bli med' }));

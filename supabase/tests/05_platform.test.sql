@@ -74,7 +74,7 @@ select is((select count(*)::int from public.audit_log where action = 'workplace.
 
 -- the first admin can join with that code
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b', 'b@ny.no');
-select redeem_invite(:'code', 'Førstenissen', '{}');
+select redeem_invite(:'code', 'gaarden', 'Førstenissen');
 select is((select role::text from public.members where nisse_name = 'Førstenissen'), 'admin', 'the code redeems into an admin');
 
 select * from finish();

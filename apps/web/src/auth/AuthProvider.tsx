@@ -4,18 +4,19 @@ import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Db } from '../lib/supabase';
 
-export type Avatar = {
-  cap?: string;
-  beard?: string;
-};
+export type Story = 'gaarden' | 'laaven';
 
 export interface Me {
   memberId: string;
   workplaceId: string;
   workplaceName: string;
   role: 'player' | 'admin';
-  nisseName: string;
-  avatar: Avatar;
+  /** The story the player is in right now. */
+  story: Story;
+  /** The name for the current story: a farmer name in Låven, a nisse name in Gården. */
+  name: string;
+  nisseName: string | null;
+  farmerName: string | null;
   isPlatformAdmin: boolean;
 }
 
@@ -42,8 +43,9 @@ interface AuthContextValue {
   /** Loads the session and membership again, e.g. after a failed load. */
   retry: () => Promise<void>;
   /** Joins a workplace and loads the new membership. */
-  redeemInvite: (code: string, nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
-  updateProfile: (nisseName: string, avatar: Avatar) => Promise<AuthError | null>;
+  redeemInvite: (code: string, story: Story, name: string) => Promise<AuthError | null>;
+  /** Switches story; the name is for that story, and can be left out when the player has one. */
+  updateProfile: (story: Story, name?: string) => Promise<AuthError | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -61,18 +63,17 @@ export function parseMe(value: unknown): Me | null {
   if (!isRecord(value)) return null;
   const memberId = str(value['member_id']);
   const workplaceId = str(value['workplace_id']);
-  const nisseName = str(value['nisse_name']);
-  if (!memberId || !workplaceId || !nisseName) return null;
-  const avatar = isRecord(value['avatar']) ? value['avatar'] : {};
-  const cap = str(avatar['cap']);
-  const beard = str(avatar['beard']);
+  const name = str(value['name']);
+  if (!memberId || !workplaceId || !name) return null;
   return {
     memberId,
     workplaceId,
     workplaceName: str(value['workplace_name']) ?? '',
     role: value['role'] === 'admin' ? 'admin' : 'player',
-    nisseName,
-    avatar: { ...(cap ? { cap } : {}), ...(beard ? { beard } : {}) },
+    story: value['story'] === 'laaven' ? 'laaven' : 'gaarden',
+    name,
+    nisseName: str(value['nisse_name']) ?? null,
+    farmerName: str(value['farmer_name']) ?? null,
     isPlatformAdmin: value['is_platform_admin'] === true,
   };
 }
@@ -150,22 +151,22 @@ export function AuthProvider({
         if (client) await client.auth.signOut();
         setState({ status: 'signedOut' });
       },
-      async redeemInvite(code, nisseName, avatar) {
+      async redeemInvite(code, story, name) {
         if (!client) return missing;
         const { error } = await client.rpc('redeem_invite', {
           p_code: code,
-          p_nisse_name: nisseName.trim(),
-          p_avatar: avatar,
+          p_story: story,
+          p_name: name.trim(),
         });
         if (error) return error;
         await reload();
         return null;
       },
-      async updateProfile(nisseName, avatar) {
+      async updateProfile(story, name) {
         if (!client) return missing;
         const { error } = await client.rpc('update_profile', {
-          p_nisse_name: nisseName.trim(),
-          p_avatar: avatar,
+          p_story: story,
+          ...(name === undefined ? {} : { p_name: name.trim() }),
         });
         if (error) return error;
         await reload();

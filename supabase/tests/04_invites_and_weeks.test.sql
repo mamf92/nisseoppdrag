@@ -58,12 +58,12 @@ select plan(15);
 
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000d', 'd@annet.no');
-select throws_ok('select redeem_invite(''nonsense'', ''Dobbel'', ''{}'')', 'P0001', 'invite_invalid', 'an unknown code is refused');
-select throws_ok('select redeem_invite(''OLDCODE'', ''Dobbel'', ''{}'')', 'P0001', 'invite_invalid', 'an expired code is refused');
-select throws_ok('select redeem_invite(''FULLCODE'', ''Dobbel'', ''{}'')', 'P0001', 'invite_invalid', 'a code with no uses left is refused');
-select throws_ok('select redeem_invite(''FIRMACODE'', ''Dobbel'', ''{}'')', 'P0001', 'domain_not_allowed', 'the e-mail domain gate holds');
-select throws_ok('select redeem_invite(''GOODCODE'', ''Fjøsnissen'', ''{}'')', 'P0001', 'name_taken', 'a taken nisse name is refused');
-select is((select redeem_invite('goodcode', 'Nyttnissen', '{}') ->> 'workplace_id'), '10000000-0000-0000-0000-000000000002', 'codes are case-insensitive');
+select throws_ok('select redeem_invite(''nonsense'', ''gaarden'', ''Dobbel'')', 'P0001', 'invite_invalid', 'an unknown code is refused');
+select throws_ok('select redeem_invite(''OLDCODE'', ''gaarden'', ''Dobbel'')', 'P0001', 'invite_invalid', 'an expired code is refused');
+select throws_ok('select redeem_invite(''FULLCODE'', ''gaarden'', ''Dobbel'')', 'P0001', 'invite_invalid', 'a code with no uses left is refused');
+select throws_ok('select redeem_invite(''FIRMACODE'', ''gaarden'', ''Dobbel'')', 'P0001', 'domain_not_allowed', 'the e-mail domain gate holds');
+select throws_ok('select redeem_invite(''GOODCODE'', ''gaarden'', ''Fjøsnissen'')', 'P0001', 'name_taken', 'a taken nisse name is refused');
+select is((select redeem_invite('goodcode', 'gaarden', 'Nyttnissen') ->> 'workplace_id'), '10000000-0000-0000-0000-000000000002', 'codes are case-insensitive');
 reset role;
 select is((select uses::int from public.invites where code_hash = extensions.digest('GOODCODE', 'sha256')), 1, 'the code counts a use');
 select is((select count(*)::int from public.members where nisse_name = 'Nyttnissen' and role = 'player'), 1, 'the new member is a player');

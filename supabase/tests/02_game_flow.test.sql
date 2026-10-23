@@ -49,9 +49,9 @@ select is(length(:'code'), 10, 'admin gets a 10 character invite code');
 
 reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000b', 'b@firma.no');
-select is((select redeem_invite(:'code', '  Lyktenissen ', '{}') ->> 'workplace_id'),
+select is((select redeem_invite(:'code', 'gaarden', '  Lyktenissen ') ->> 'workplace_id'),
           '10000000-0000-0000-0000-000000000001', 'the invite lands the player in the right workplace');
-select throws_ok(format('select redeem_invite(%L, ''Dobbel'', ''{}'')', :'code'),
+select throws_ok(format('select redeem_invite(%L, ''gaarden'', ''Dobbel'')', :'code'),
                  'P0001', 'already_member', 'a member cannot redeem again');
 select is((select me() ->> 'nisse_name'), 'Lyktenissen', 'the nisse name is trimmed');
 
@@ -96,7 +96,7 @@ select is(jsonb_array_length(ensure_my_week() -> 'slots'), 5, 'still five live s
 
 -- ---------- ledger and leaderboard ----------
 select is((select count(*)::int from public.points_ledger where reason = 'challenge'), 1, 'skip and reroll pay nothing');
-select is((select points::int from leaderboard('season') where nisse_name = 'Lyktenissen'),
+select is((select points::int from leaderboard('season') where name = 'Lyktenissen'),
           (select sum(delta)::int from public.points_ledger), 'the leaderboard shows the ledger total');
 select is((select count(*)::int from leaderboard('season')), 2, 'the leaderboard lists the workplace only');
 
