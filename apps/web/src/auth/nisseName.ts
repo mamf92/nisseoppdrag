@@ -16,11 +16,55 @@ export function generateNisseName(random: () => number = Math.random): string {
   return `${pick(NAME_PREFIXES, random)}${pick(NAME_SUFFIXES, random)}`;
 }
 
+// Låven: you play a farmhand, so the suggestion is an old Norwegian farm name.
+export const FARM_FIRST_NAMES = [
+  'Ola',
+  'Per',
+  'Kari',
+  'Anne',
+  'Lars',
+  'Ingrid',
+  'Olav',
+  'Berit',
+  'Knut',
+  'Marit',
+  'Hans',
+  'Sigrid',
+  'Jon',
+  'Astrid',
+  'Nils',
+  'Solveig',
+] as const;
+export const FARM_SURNAMES = [
+  'Haugen',
+  'Bakken',
+  'Nordgård',
+  'Moen',
+  'Lie',
+  'Dahl',
+  'Haugland',
+  'Solberg',
+  'Bråten',
+  'Rud',
+  'Aasen',
+  'Fjeld',
+  'Berg',
+  'Lund',
+] as const;
+
+export function generateFarmName(random: () => number = Math.random): string {
+  return `${pick(FARM_FIRST_NAMES, random)} ${pick(FARM_SURNAMES, random)}`;
+}
+
+export function generateCharacterName(
+  story: 'gaarden' | 'laaven',
+  random: () => number = Math.random,
+): string {
+  return story === 'laaven' ? generateFarmName(random) : generateNisseName(random);
+}
+
 // Mirrors the check constraint on members.nisse_name.
 export function isValidNisseName(name: string): boolean {
   const trimmed = name.trim();
   return trimmed.length >= NAME_MIN && trimmed.length <= NAME_MAX && !/[<>@]/.test(trimmed);
 }
-
-export const CAP_COLOURS = ['#b3262a', '#2f6b3a', '#2b4a8a', '#7a3b82', '#c9801f'] as const;
-export const BEARD_COLOURS = ['#f4efe4', '#c9c3b5', '#d8a45a', '#8a5a33', '#4a3a2a'] as const;

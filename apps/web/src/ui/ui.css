@@ -741,12 +741,29 @@
 }
 .n-field__error {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 650;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--error-ink) 9%, transparent);
+  font-size: 0.9375rem;
+  line-height: 1.35;
   color: var(--error-ink);
+}
+.n-field__error > span[aria-hidden='true'] {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--error-ink);
+  color: var(--surface-2);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* ---------- ornaments ---------- */
@@ -822,4 +839,65 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent-text);
+}
+
+/* ---------- sign-in painting and story cards ---------- */
+.n-gate {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line);
+  background: var(--bg-2);
+}
+.n-gate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 62%;
+}
+.n-story {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line);
+  cursor: pointer;
+}
+.n-story input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.n-story picture {
+  display: block;
+  aspect-ratio: 16 / 7;
+  background: var(--bg-2);
+}
+.n-story img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.n-story__title {
+  padding: 12px 14px 0;
+  font-family: var(--font-display-stack);
+  font-size: 1.2rem;
+}
+.n-story__pitch {
+  padding: 4px 14px 14px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.n-story:has(input:checked) {
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 6px 16px rgb(0 0 0 / 0.12);
+}
+.n-story:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }

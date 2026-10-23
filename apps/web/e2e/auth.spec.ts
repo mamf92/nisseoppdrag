@@ -63,6 +63,8 @@ test('a new colleague signs in with a code and joins through an invite', async (
   await page.getByRole('button', { name: 'Logg inn' }).click();
 
   await expect(page).toHaveURL(/\/onboarding$/);
+  await expect(page.getByRole('heading', { name: 'Velg din historie' })).toBeVisible();
+  await page.getByRole('button', { name: 'Neste' }).click();
   await expect(page.getByLabel('Nissenavn')).toHaveValue(/(nissen|nissa|tufsen)$/);
   await page.getByRole('button', { name: 'Bli med' }).click();
   await expect(page.getByText('E2E-verkstedet')).toBeVisible();

@@ -29,7 +29,9 @@ describe('sign in', () => {
       type: 'email',
     });
     // Signed in without a workplace: onboarding is next.
-    expect(await screen.findByRole('heading', { name: 'Velg nissenavn' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Hvilken gruppe skal du bli med i?' }),
+    ).toBeInTheDocument();
   });
 
   it('rejects an address that is not an e-mail address without calling the server', async () => {
