@@ -22,8 +22,10 @@ export const MEMBER_ME = {
   workplace_id: 'w1',
   workplace_name: 'Firma AS',
   role: 'player',
+  story: 'gaarden',
   nisse_name: 'Grøtnissen',
-  avatar: { cap: '#b3262a', beard: '#f4efe4' },
+  farmer_name: null,
+  name: 'Grøtnissen',
   is_platform_admin: false,
 };
 

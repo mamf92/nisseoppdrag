@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../auth/AuthLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { errorKey } from '../auth/errors';
 import { clearInvite, readInvite } from '../auth/invite';
-import { generateCharacterName, isValidNisseName, NAME_MAX } from '../auth/nisseName';
+import { FARM_NAMES, farmerName, firstNames, randomFarmer } from '../auth/farmerName';
+import type { FarmerChoice, NameKind } from '../auth/farmerName';
+import { generateNisseName, isValidNisseName, NAME_MAX } from '../auth/nisseName';
 import { useT } from '../i18n/I18nProvider';
 import { THEMES } from '../themes/theme';
 import type { Theme } from '../themes/theme';
@@ -56,6 +58,102 @@ function StoryCards({ value, onChange }: { value: Theme; onChange: (story: Theme
   );
 }
 
+function Select({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly string[];
+  onChange: (value: string) => void;
+}) {
+  const id = useId();
+  return (
+    <div className="n-field">
+      <label htmlFor={id}>{label}</label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+        }}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// Låven names are picked, not typed: a first name from the women's or men's list, then a farm.
+function FarmerNamePicker({
+  value,
+  onChange,
+  error,
+}: {
+  value: FarmerChoice;
+  onChange: (next: FarmerChoice) => void;
+  error?: string | undefined;
+}) {
+  const t = useT();
+  const kinds: readonly NameKind[] = ['female', 'male'];
+  function chooseKind(kind: NameKind) {
+    if (kind === value.kind) return;
+    onChange({ ...value, kind, first: firstNames(kind)[0] ?? value.first });
+  }
+  return (
+    <div className="grid gap-3">
+      <div className="n-segmented" role="group" aria-label={t('onboard.farmer.kind')}>
+        {kinds.map((kind) => (
+          <button
+            key={kind}
+            type="button"
+            aria-pressed={value.kind === kind}
+            onClick={() => {
+              chooseKind(kind);
+            }}
+          >
+            {t(`onboard.farmer.${kind}`)}
+          </button>
+        ))}
+      </div>
+      <Select
+        label={t('onboard.farmer.first')}
+        value={value.first}
+        options={firstNames(value.kind)}
+        onChange={(first) => {
+          onChange({ ...value, first });
+        }}
+      />
+      <Select
+        label={t('onboard.farmer.farm')}
+        value={value.farm}
+        options={FARM_NAMES}
+        onChange={(farm) => {
+          onChange({ ...value, farm });
+        }}
+      />
+      <p className="m-0 text-xl font-semibold" aria-live="polite">
+        {farmerName(value)}
+      </p>
+      {error ? <p role="alert">{error}</p> : null}
+      <Button
+        variant="ghost"
+        onClick={() => {
+          onChange(randomFarmer());
+        }}
+      >
+        {t('onboard.farmer.random')}
+      </Button>
+    </div>
+  );
+}
+
 export function OnboardingPage() {
   const t = useT();
   const { redeemInvite, signOut } = useAuth();
@@ -65,14 +163,15 @@ export function OnboardingPage() {
   const [code, setCode] = useState(storedCode ?? '');
   // A code from the invite link skips the first step.
   const [step, setStep] = useState<Step>(storedCode ? 'story' : 'code');
-  const [name, setName] = useState(() => generateCharacterName(theme));
+  const [name, setName] = useState(() => generateNisseName());
+  const [farmer, setFarmer] = useState<FarmerChoice>(() => randomFarmer());
   const [nameEdited, setNameEdited] = useState(false);
   const [errors, setErrors] = useState<{ code?: string; name?: string; form?: string }>({});
   const [busy, setBusy] = useState(false);
 
   function chooseStory(story: Theme) {
     setTheme(story);
-    if (!nameEdited) setName(generateCharacterName(story));
+    if (!nameEdited) setName(generateNisseName());
   }
 
   function nextFromCode(event: FormEvent) {
@@ -87,13 +186,14 @@ export function OnboardingPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!isValidNisseName(name)) {
+    const chosen = theme === 'laaven' ? farmerName(farmer) : name;
+    if (!isValidNisseName(chosen)) {
       setErrors({ name: t('error.name_length', { max: NAME_MAX }) });
       return;
     }
     setErrors({});
     setBusy(true);
-    const failure = await redeemInvite(code, name, {});
+    const failure = await redeemInvite(code, theme, chosen);
     setBusy(false);
     if (!failure) {
       clearInvite();
@@ -174,29 +274,33 @@ export function OnboardingPage() {
   return (
     <AuthLayout title={t(`onboard.name.title.${theme}`)} lead={t(`onboard.name.lead.${theme}`)}>
       <form className="grid gap-5" onSubmit={(e) => void submit(e)} noValidate>
-        <div className="grid gap-2">
-          <TextField
-            label={t(`onboard.name.label.${theme}`)}
-            hint={t('onboard.name.hint')}
-            maxLength={NAME_MAX}
-            autoComplete="off"
-            value={name}
-            error={errors.name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setNameEdited(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setName(generateCharacterName(theme));
-              setNameEdited(false);
-            }}
-          >
-            {t('onboard.name.random')}
-          </Button>
-        </div>
+        {theme === 'laaven' ? (
+          <FarmerNamePicker value={farmer} onChange={setFarmer} error={errors.name} />
+        ) : (
+          <div className="grid gap-2">
+            <TextField
+              label={t('onboard.name.label.gaarden')}
+              hint={t('onboard.name.hint')}
+              maxLength={NAME_MAX}
+              autoComplete="off"
+              value={name}
+              error={errors.name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNameEdited(true);
+              }}
+            />
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setName(generateNisseName());
+                setNameEdited(false);
+              }}
+            >
+              {t('onboard.name.random')}
+            </Button>
+          </div>
+        )}
         {errors.form ? <p role="alert">{errors.form}</p> : null}
         <Button type="submit" disabled={busy}>
           {t('onboard.submit')}

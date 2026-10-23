@@ -14,7 +14,7 @@ export function HomePage() {
     <main className="mx-auto grid max-w-xl gap-4 p-6">
       <h1 className="text-3xl font-bold">{t('app.name')}</h1>
       <div>
-        <p className="text-xl font-semibold">{t('home.welcome', { name: me.nisseName })}</p>
+        <p className="text-xl font-semibold">{t('home.welcome', { name: me.name })}</p>
         <p>{me.workplaceName}</p>
       </div>
       <p>{t('home.placeholder')}</p>

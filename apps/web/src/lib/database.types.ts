@@ -355,29 +355,35 @@ export type Database = {
       members: {
         Row: {
           avatar: NonNullable<Json>;
+          farmer_name: string | null;
           id: string;
           joined_at: string;
-          nisse_name: string;
+          nisse_name: string | null;
           role: Database['public']['Enums']['member_role'];
+          story: Database['public']['Enums']['story'];
           user_id: string;
           workplace_id: string;
         };
         ComputedFields: never;
         Insert: {
           avatar?: NonNullable<Json>;
+          farmer_name?: string | null;
           id?: string;
           joined_at?: string;
-          nisse_name: string;
+          nisse_name?: string | null;
           role?: Database['public']['Enums']['member_role'];
+          story?: Database['public']['Enums']['story'];
           user_id: string;
           workplace_id: string;
         };
         Update: {
           avatar?: NonNullable<Json>;
+          farmer_name?: string | null;
           id?: string;
           joined_at?: string;
-          nisse_name?: string;
+          nisse_name?: string | null;
           role?: Database['public']['Enums']['member_role'];
+          story?: Database['public']['Enums']['story'];
           user_id?: string;
           workplace_id?: string;
         };
@@ -598,9 +604,8 @@ export type Database = {
       leaderboard: {
         Args: { p_scope?: string };
         Returns: {
-          avatar: Json;
           member_id: string;
-          nisse_name: string;
+          name: string;
           points: number;
           rank: number;
         }[];
@@ -612,12 +617,15 @@ export type Database = {
       };
       platform_health: { Args: Record<PropertyKey, never>; Returns: string };
       redeem_invite: {
-        Args: { p_avatar: Json; p_code: string; p_nisse_name: string };
+        Args: { p_code: string; p_name: string; p_story: Database['public']['Enums']['story'] };
         Returns: Json;
       };
       reroll_assignment: { Args: { p_assignment: string }; Returns: Json };
       skip_assignment: { Args: { p_assignment: string }; Returns: Json };
-      update_profile: { Args: { p_avatar: Json; p_nisse_name: string }; Returns: undefined };
+      update_profile: {
+        Args: { p_name?: string; p_story: Database['public']['Enums']['story'] };
+        Returns: undefined;
+      };
     };
     Enums: {
       assignment_status: 'open' | 'completed' | 'skipped' | 'rerolled';
@@ -625,6 +633,7 @@ export type Database = {
       ledger_reason: 'challenge' | 'full_week' | 'streak' | 'achievement' | 'admin_adjustment';
       member_role: 'player' | 'admin';
       season_status: 'draft' | 'active' | 'finished';
+      story: 'gaarden' | 'laaven';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -741,6 +750,7 @@ export const Constants = {
       ledger_reason: ['challenge', 'full_week', 'streak', 'achievement', 'admin_adjustment'],
       member_role: ['player', 'admin'],
       season_status: ['draft', 'active', 'finished'],
+      story: ['gaarden', 'laaven'],
     },
   },
 } as const;
