@@ -17,6 +17,25 @@ alter table public.members
 
 grant select (story, farmer_name) on public.members to authenticated;
 
+-- A name is unique across both stories in a workplace, so the leaderboard never shows two
+-- players under the same name when one plays Gården and the other Låven.
+create function private.members_names_unique() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  if exists (
+    select 1 from public.members m
+    where m.workplace_id = new.workplace_id and m.id <> new.id
+      and (lower(m.nisse_name) in (lower(new.nisse_name), lower(new.farmer_name))
+        or lower(m.farmer_name) in (lower(new.nisse_name), lower(new.farmer_name)))
+  ) then
+    raise exception 'name_taken' using errcode = '23505';
+  end if;
+  return new;
+end $$;
+
+create trigger members_names_unique before insert or update of nisse_name, farmer_name
+  on public.members for each row execute function private.members_names_unique();
+
 -- the name for the story the member is playing right now
 create function private.display_name(p_story public.story, p_nisse text, p_farmer text) returns text
 language sql immutable set search_path = '' as $$

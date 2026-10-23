@@ -26,7 +26,7 @@ begin
   set local role authenticated;
 end $$;
 
-select plan(16);
+select plan(17);
 
 -- joining in Låven stores a farmer name and no nisse name
 reset role;
@@ -66,6 +66,12 @@ reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000c', 'c@firma.no');
 select throws_ok($$select redeem_invite('names', 'laaven', 'Kari Haugen')$$, 'P0001', 'name_taken',
                  'a farmer name taken by a colleague is refused');
+
+-- ... and a nisse name cannot equal a colleague's farmer name
+reset role;
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000a', 'a@firma.no');
+select throws_ok($$select update_profile('gaarden', 'kari haugen')$$, 'P0001', 'name_taken',
+                 'a nisse name equal to a colleague''s farmer name is refused');
 
 select * from finish();
 rollback;
