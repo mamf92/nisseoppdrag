@@ -183,6 +183,25 @@ describe('onboarding', () => {
     expect(calls.rpc.mock.calls.filter(([name]) => name === 'taken_names')).toHaveLength(2);
   });
 
+  it('still suggests a farm name when the lookup of taken names fails', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    const { client, calls } = fakeClient({
+      ...SIGNED_IN,
+      takenError: { message: 'Failed to fetch' },
+    });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
+    await toNameStep(user);
+    expect(screen.getByText('Ditt navn')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Bli med' }));
+    expect(calls.rpc).toHaveBeenCalledWith(
+      'redeem_invite',
+      expect.objectContaining({ p_story: 'laaven' }),
+    );
+  });
+
   it('goes back to the code step when the code is refused while looking up names', async () => {
     window.sessionStorage.setItem('nisse-invite', 'OLD');
     const user = userEvent.setup();

@@ -44,6 +44,7 @@ export function OnboardingPage() {
     setBusy(true);
     const result = await takenNames(code);
     setBusy(false);
+    let names = new Set<string>();
     if ('error' in result) {
       const key = errorKey(result.error);
       if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
@@ -51,13 +52,11 @@ export function OnboardingPage() {
         return false;
       }
       // Anything else: carry on with an empty list. The database refuses a taken name anyway.
-      setTaken(new Set());
-      return true;
-    }
-    setTaken(result.names);
-    setFarmer((current) => (current ? settle(current, result.names) : randomFarmer(result.names)));
+    } else names = result.names;
+    setTaken(names);
+    setFarmer((current) => (current ? settle(current, names) : randomFarmer(names)));
     setName((current) =>
-      nameEdited && isFree(current, result.names) ? current : generateFreeNisseName(result.names),
+      nameEdited && isFree(current, names) ? current : generateFreeNisseName(names),
     );
     return true;
   }
