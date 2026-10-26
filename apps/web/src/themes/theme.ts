@@ -40,3 +40,20 @@ export function applyTheme(theme: Theme): void {
 export function initialTheme(): Theme {
   return readStoredTheme() ?? defaultTheme();
 }
+
+interface ViewTransitionDocument {
+  startViewTransition?: (update: () => void) => unknown;
+}
+
+/**
+ * Switches the theme with a cross-fade where the browser supports view transitions and the
+ * visitor has not asked for less motion; `instant` runs otherwise.
+ */
+export function transitionTheme(animated: () => void, instant: () => void): void {
+  const doc: Document & ViewTransitionDocument = document;
+  const reduce =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof doc.startViewTransition === 'function' && !reduce) doc.startViewTransition(animated);
+  else instant();
+}

@@ -9,14 +9,23 @@ describe('routing and guards', () => {
     window.sessionStorage.clear();
   });
 
-  it('sends a signed-out visitor to the sign-in page', async () => {
+  it('sends a signed-out visitor to the welcome page', async () => {
     renderWithProviders(<App />, { client: fakeClient().client });
+    expect(
+      await screen.findByRole('heading', { name: 'Velkommen til Nisseoppdrag' }),
+    ).toBeInTheDocument();
+  });
+
+  it('sends a signed-out visitor with a deep link to sign-in', async () => {
+    renderWithProviders(<App />, { client: fakeClient().client, route: '/noe' });
     expect(await screen.findByRole('heading', { name: 'Logg inn' })).toBeInTheDocument();
   });
 
   it('shows the English copy when English is chosen', async () => {
     renderWithProviders(<App />, { client: fakeClient().client, lang: 'en' });
-    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Welcome to Nisse Missions' }),
+    ).toBeInTheDocument();
   });
 
   it('shows the home page to a member', async () => {
@@ -42,7 +51,9 @@ describe('routing and guards', () => {
 
   it('remembers the invite code from /bli-med and goes to sign-in', async () => {
     renderWithProviders(<App />, { client: fakeClient().client, route: '/bli-med/ABC123' });
-    expect(await screen.findByRole('heading', { name: 'Logg inn' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Logg inn for å bli med' }),
+    ).toBeInTheDocument();
     expect(window.sessionStorage.getItem('nisse-invite')).toBe('ABC123');
   });
 

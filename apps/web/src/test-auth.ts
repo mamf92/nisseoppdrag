@@ -15,6 +15,9 @@ export interface FakeOptions {
   otpError?: Failure | null;
   verifyError?: Failure | null;
   redeemError?: Failure | null;
+  /** What `rpc('taken_names')` returns: the names already in use in the group. */
+  taken?: string[];
+  takenError?: Failure | null;
 }
 
 export const MEMBER_ME = {
@@ -74,6 +77,10 @@ export function fakeClient(options: FakeOptions = {}) {
         if (options.redeemError) return Promise.resolve({ data: null, error: options.redeemError });
         me = MEMBER_ME;
         return Promise.resolve({ data: { workplace_id: 'w1' }, error: null });
+      }
+      if (name === 'taken_names') {
+        if (options.takenError) return Promise.resolve({ data: null, error: options.takenError });
+        return Promise.resolve({ data: options.taken ?? [], error: null });
       }
       return Promise.resolve({ data: null, error: null });
     },

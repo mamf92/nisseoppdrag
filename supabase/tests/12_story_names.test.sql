@@ -26,7 +26,7 @@ begin
   set local role authenticated;
 end $$;
 
-select plan(17);
+select plan(26);
 
 -- joining in Låven stores a farmer name and no nisse name
 reset role;
@@ -72,6 +72,36 @@ reset role;
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a', 'a@firma.no');
 select throws_ok($$select update_profile('gaarden', 'kari haugen')$$, 'P0001', 'name_taken',
                  'a nisse name equal to a colleague''s farmer name is refused');
+
+-- taken names: both stories, lower-cased, for the workplace behind the code
+reset role;
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000c', 'c@firma.no');
+select is((select taken_names('names')), array['grøtnissen', 'kari haugen', 'lyktenissen'],
+          'taken_names lists the names of both stories, lower-cased');
+select is((select taken_names('NAMES')), (select taken_names('names')), 'the code is case-insensitive');
+select throws_ok($$select taken_names('nonsense')$$, 'P0001', 'invite_invalid', 'an unknown code lists nothing');
+
+reset role;
+set local role anon;
+select throws_ok($$select taken_names('names')$$, '42501', null, 'anon cannot list taken names');
+
+-- the e-mail domain gate holds for the list too
+reset role;
+update public.workplaces set allowed_email_domains = '{firma.no}';
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000c', 'c@annet.no');
+select throws_ok($$select taken_names('names')$$, 'P0001', 'domain_not_allowed',
+                 'a foreign e-mail domain cannot read the names');
+
+-- case-insensitive uniqueness, also inside one story
+reset role;
+update public.workplaces set allowed_email_domains = '{}';
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000c', 'c@firma.no');
+select throws_ok($$select redeem_invite('names', 'laaven', 'KARI HAUGEN')$$, 'P0001', 'name_taken',
+                 'a farmer name differing only in case is refused');
+select throws_ok($$select redeem_invite('names', 'gaarden', 'lyktenissen')$$, 'P0001', 'name_taken',
+                 'a nisse name differing only in case is refused');
+select lives_ok($$select redeem_invite('names', 'laaven', 'Ivar Ruud')$$, 'a free name works');
+select is((select taken_names('names') @> array['ivar ruud']), true, 'a name drops off the free list once taken');
 
 select * from finish();
 rollback;

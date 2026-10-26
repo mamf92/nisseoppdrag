@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { Button } from '../ui';
 import { useT } from '../i18n/I18nProvider';
 import { useAuth } from './AuthProvider';
+import { firstStepFor, readIntent } from './intent';
 
 function Loading() {
   const t = useT();
@@ -37,9 +38,14 @@ export function RequireMember({ children }: { children: ReactNode }) {
   const location = useLocation();
   if (state.status === 'loading') return <Loading />;
   if (state.status === 'error') return <LoadFailed />;
+  // The front page is the welcome page; a deep link goes straight to sign-in and back again.
   if (state.status === 'signedOut')
-    return <Navigate to="/logg-inn" state={{ from: location.pathname }} replace />;
-  if (state.status === 'signedIn') return <Navigate to="/onboarding" replace />;
+    return location.pathname === '/' ? (
+      <Navigate to="/velkommen" replace />
+    ) : (
+      <Navigate to="/logg-inn" state={{ from: location.pathname }} replace />
+    );
+  if (state.status === 'signedIn') return <Navigate to={firstStepFor(readIntent())} replace />;
   return <>{children}</>;
 }
 

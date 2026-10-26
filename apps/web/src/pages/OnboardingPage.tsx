@@ -1,177 +1,78 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../auth/AuthLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { errorKey } from '../auth/errors';
 import { clearInvite, readInvite } from '../auth/invite';
-import { FARM_NAMES, farmerName, firstNames, randomFarmer } from '../auth/farmerName';
-import type { FarmerChoice, NameKind } from '../auth/farmerName';
-import { generateNisseName, isValidNisseName, NAME_MAX } from '../auth/nisseName';
+import { farmerName, isFree, randomFarmer, settle } from '../auth/farmerName';
+import type { FarmerChoice, TakenNames } from '../auth/farmerName';
+import { clearIntent } from '../auth/intent';
+import { generateFreeNisseName, isValidNisseName, NAME_MAX } from '../auth/nisseName';
 import { useT } from '../i18n/I18nProvider';
-import { THEMES } from '../themes/theme';
 import type { Theme } from '../themes/theme';
 import { useTheme } from '../themes/ThemeProvider';
 import { Button, TextField } from '../ui';
-
-const STORY_ART: Record<Theme, string> = {
-  gaarden: '/art/story/L-12-hayloft-feast',
-  laaven: '/art/story/R-10-keeping-watch',
-};
+import { FarmerNamePicker } from './FarmerNamePicker';
+import { StoryStep } from './StoryStep';
 
 type Step = 'code' | 'story' | 'name';
 
-function StoryCards({ value, onChange }: { value: Theme; onChange: (story: Theme) => void }) {
-  const t = useT();
-  return (
-    <fieldset className="grid gap-3">
-      <legend className="sr-only">{t('onboard.story.legend')}</legend>
-      {THEMES.map((story) => {
-        const base = STORY_ART[story];
-        return (
-          <label key={story} className="n-story">
-            <input
-              type="radio"
-              name="story"
-              value={story}
-              checked={value === story}
-              onChange={() => {
-                onChange(story);
-              }}
-            />
-            <picture>
-              <source type="image/avif" srcSet={`${base}@1x.avif 1x, ${base}@2x.avif 2x`} />
-              <img
-                src={`${base}@1x.webp`}
-                srcSet={`${base}@1x.webp 1x, ${base}@2x.webp 2x`}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            </picture>
-            <strong className="n-story__title">{t(`story.${story}.title`)}</strong>
-            <span className="n-story__pitch">{t(`story.${story}.pitch`)}</span>
-          </label>
-        );
-      })}
-    </fieldset>
-  );
-}
-
-function Select({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: readonly string[];
-  onChange: (value: string) => void;
-}) {
-  const id = useId();
-  return (
-    <div className="n-field">
-      <label htmlFor={id}>{label}</label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-        }}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-// Låven names are picked, not typed: a first name from the women's or men's list, then a farm.
-function FarmerNamePicker({
-  value,
-  onChange,
-  error,
-}: {
-  value: FarmerChoice;
-  onChange: (next: FarmerChoice) => void;
-  error?: string | undefined;
-}) {
-  const t = useT();
-  const kinds: readonly NameKind[] = ['female', 'male'];
-  function chooseKind(kind: NameKind) {
-    if (kind === value.kind) return;
-    onChange({ ...value, kind, first: firstNames(kind)[0] ?? value.first });
-  }
-  return (
-    <div className="grid gap-3">
-      <div className="n-segmented" role="group" aria-label={t('onboard.farmer.kind')}>
-        {kinds.map((kind) => (
-          <button
-            key={kind}
-            type="button"
-            aria-pressed={value.kind === kind}
-            onClick={() => {
-              chooseKind(kind);
-            }}
-          >
-            {t(`onboard.farmer.${kind}`)}
-          </button>
-        ))}
-      </div>
-      <Select
-        label={t('onboard.farmer.first')}
-        value={value.first}
-        options={firstNames(value.kind)}
-        onChange={(first) => {
-          onChange({ ...value, first });
-        }}
-      />
-      <Select
-        label={t('onboard.farmer.farm')}
-        value={value.farm}
-        options={FARM_NAMES}
-        onChange={(farm) => {
-          onChange({ ...value, farm });
-        }}
-      />
-      <p className="m-0 text-xl font-semibold" aria-live="polite">
-        {farmerName(value)}
-      </p>
-      {error ? <p role="alert">{error}</p> : null}
-      <Button
-        variant="ghost"
-        onClick={() => {
-          onChange(randomFarmer());
-        }}
-      >
-        {t('onboard.farmer.random')}
-      </Button>
-    </div>
-  );
-}
-
 export function OnboardingPage() {
   const t = useT();
-  const { redeemInvite, signOut } = useAuth();
+  const { redeemInvite, signOut, takenNames } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [storedCode, setStoredCode] = useState(() => readInvite());
   const [code, setCode] = useState(storedCode ?? '');
   // A code from the invite link skips the first step.
   const [step, setStep] = useState<Step>(storedCode ? 'story' : 'code');
-  const [name, setName] = useState(() => generateNisseName());
-  const [farmer, setFarmer] = useState<FarmerChoice>(() => randomFarmer());
+  const [taken, setTaken] = useState<TakenNames>(() => new Set());
+  const [name, setName] = useState('');
+  const [farmer, setFarmer] = useState<FarmerChoice | null>(null);
   const [nameEdited, setNameEdited] = useState(false);
   const [errors, setErrors] = useState<{ code?: string; name?: string; form?: string }>({});
   const [busy, setBusy] = useState(false);
 
   function chooseStory(story: Theme) {
     setTheme(story);
-    if (!nameEdited) setName(generateNisseName());
+  }
+
+  // Looks up which names are free in the group, then suggests one. If the code is refused the
+  // lookup says so, and the player is sent back to the code step.
+  async function refreshNames(): Promise<boolean> {
+    setBusy(true);
+    const result = await takenNames(code);
+    setBusy(false);
+    if ('error' in result) {
+      const key = errorKey(result.error);
+      if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
+        backToCode(t(key));
+        return false;
+      }
+      // Anything else: carry on with an empty list. The database refuses a taken name anyway.
+      setTaken(new Set());
+      return true;
+    }
+    setTaken(result.names);
+    setFarmer((current) => (current ? settle(current, result.names) : randomFarmer(result.names)));
+    setName((current) =>
+      nameEdited && isFree(current, result.names) ? current : generateFreeNisseName(result.names),
+    );
+    return true;
+  }
+
+  function backToCode(message: string) {
+    if (storedCode) {
+      clearInvite();
+      setStoredCode(null);
+    }
+    setErrors({ code: message });
+    setStep('code');
+  }
+
+  async function toNameStep() {
+    if (await refreshNames()) setStep('name');
   }
 
   function nextFromCode(event: FormEvent) {
@@ -186,9 +87,13 @@ export function OnboardingPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const chosen = theme === 'laaven' ? farmerName(farmer) : name;
+    const chosen = theme === 'laaven' && farmer ? farmerName(farmer) : name;
     if (!isValidNisseName(chosen)) {
       setErrors({ name: t('error.name_length', { max: NAME_MAX }) });
+      return;
+    }
+    if (!isFree(chosen, taken)) {
+      setErrors({ name: t('error.name_taken') });
       return;
     }
     setErrors({});
@@ -197,19 +102,18 @@ export function OnboardingPage() {
     setBusy(false);
     if (!failure) {
       clearInvite();
+      clearIntent();
       void navigate('/', { replace: true });
       return;
     }
     const key = errorKey(failure);
-    if (key === 'error.name_taken') setErrors({ name: t(key) });
-    else if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
+    if (key === 'error.name_taken') {
+      // Someone took it a moment ago: fetch the list again, move to a free name and say so.
+      await refreshNames();
+      setErrors({ name: t(key) });
+    } else if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
       // The code is wrong: back to the code step, where it can be replaced.
-      if (storedCode) {
-        clearInvite();
-        setStoredCode(null);
-      }
-      setErrors({ code: t(key) });
-      setStep('code');
+      backToCode(t(key));
     } else setErrors({ form: t(key) });
   }
 
@@ -247,35 +151,22 @@ export function OnboardingPage() {
 
   if (step === 'story') {
     return (
-      <AuthLayout title={t('onboard.story.title')} lead={t('onboard.story.lead')}>
-        <div className="grid gap-4">
-          <StoryCards value={theme} onChange={chooseStory} />
-          <p className="m-0 text-sm">{t('onboard.story.note')}</p>
-          <Button
-            onClick={() => {
-              setStep('name');
-            }}
-          >
-            {t('onboard.next')}
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setStep('code');
-            }}
-          >
-            {t('onboard.back')}
-          </Button>
-        </div>
-      </AuthLayout>
+      <StoryStep
+        value={theme}
+        onChange={chooseStory}
+        onNext={() => void toNameStep()}
+        onBack={() => {
+          setStep('code');
+        }}
+      />
     );
   }
 
   return (
     <AuthLayout title={t(`onboard.name.title.${theme}`)} lead={t(`onboard.name.lead.${theme}`)}>
       <form className="grid gap-5" onSubmit={(e) => void submit(e)} noValidate>
-        {theme === 'laaven' ? (
-          <FarmerNamePicker value={farmer} onChange={setFarmer} error={errors.name} />
+        {theme === 'laaven' && farmer ? (
+          <FarmerNamePicker value={farmer} taken={taken} onChange={setFarmer} error={errors.name} />
         ) : (
           <div className="grid gap-2">
             <TextField
@@ -293,7 +184,7 @@ export function OnboardingPage() {
             <Button
               variant="ghost"
               onClick={() => {
-                setName(generateNisseName());
+                setName(generateFreeNisseName(taken));
                 setNameEdited(false);
               }}
             >

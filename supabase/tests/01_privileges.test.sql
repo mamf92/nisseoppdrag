@@ -59,7 +59,7 @@ select is(
     'public.admin_set_role', 'public.admin_stats', 'public.admin_upsert_season',
     'public.complete_assignment', 'public.ensure_my_week', 'public.leaderboard', 'public.me',
     'public.platform_create_workplace', 'public.platform_health', 'public.redeem_invite',
-    'public.reroll_assignment', 'public.skip_assignment', 'public.update_profile'],
+    'public.reroll_assignment', 'public.skip_assignment', 'public.taken_names', 'public.update_profile'],
   'authenticated can execute exactly the allowed functions');
 select is(
   (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
