@@ -104,13 +104,26 @@ CI runs the same on every pull request in two jobs, `web` and `database`.
 
 Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` reach the browser. No service-role key, SMTP password or access token belongs in the repo. Supabase is deliberately not linked to GitHub; migrations reach staging and prod through CI after review.
 
-## Deployment
+## Deployment and release flow
 
-Vercel's GitHub integration deploys: `main` goes to Production, every other branch and PR gets a Preview. Vercel settings: Root Directory `apps/web`, framework Vite, other commands left to `apps/web/vercel.json`. Environment variables (public values only): `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, with the prod project on Production and the staging project on Preview.
+Two long-lived branches, two environments:
+
+| Branch    | Vercel                        | Supabase        | URL                                          |
+| --------- | ----------------------------- | --------------- | -------------------------------------------- |
+| `staging` | Preview (a stable branch URL) | staging project | `nisseoppdrag-git-staging-<team>.vercel.app` |
+| `main`    | Production                    | prod project    | nisseoppdrag.no                              |
+
+1. Work happens on a feature branch and goes into `staging` by pull request (`web` and `database` must pass).
+2. Test on the staging URL. Migrations are applied to the staging project first.
+3. When the functionality is verified, open a pull request from `staging` to `main`. Merging it deploys Production, and the same migrations are then applied to prod.
+
+Other branches and PRs still get their own Vercel Preview, which also uses the staging project.
+
+Vercel settings: Root Directory `apps/web`, framework Vite, other commands left to `apps/web/vercel.json`. Environment variables (public values only): `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, with the prod project on Production and the staging project on Preview. Vite bakes the values into the build, so redeploy after changing them. Until prod is ready, Production may point at the staging project too.
 
 ## Branch protection
 
-`main` is protected by a GitHub ruleset: pull request required (0 approvals), status checks `web` and `database`, no force pushes, no deletion. Also enable Dependabot alerts and secret scanning. Consider making the repo private.
+`main` is protected by a GitHub ruleset (apply the same to `staging`): pull request required (0 approvals), status checks `web` and `database`, no force pushes, no deletion. Also enable Dependabot alerts and secret scanning. Consider making the repo private.
 
 ## How work is organised
 
