@@ -12,6 +12,7 @@
     "typecheck": "pnpm --filter @nisseoppdrag/web typecheck",
     "test": "pnpm --filter @nisseoppdrag/web test",
     "e2e": "pnpm --filter @nisseoppdrag/web e2e",
+    "smoke": "pnpm --filter @nisseoppdrag/web smoke",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "gen:types": "bash scripts/gen-types.sh"
