@@ -8,6 +8,7 @@ const CODES: Record<string, MessageKey> = {
   already_member: 'error.already_member',
   not_signed_in: 'error.not_signed_in',
   invalid_input: 'error.generic',
+  not_configured: 'error.not_configured',
 };
 
 export function errorKey(error: { message?: string; status?: number; code?: string }): MessageKey {
