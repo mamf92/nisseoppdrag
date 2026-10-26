@@ -46,9 +46,10 @@ begin
     if not v_domain = any (v_wp.allowed_email_domains) then raise exception 'domain_not_allowed'; end if;
   end if;
   return coalesce((
-    select array_agg(distinct n order by n collate "C") from public.members m,
-      lateral unnest(array[lower(m.nisse_name), lower(m.farmer_name)]) as n
-    where m.workplace_id = v_wp.id and n is not null), '{}');
+    select array_agg(u.n order by u.n collate "C")
+    from (select distinct n from public.members m,
+            lateral unnest(array[lower(m.nisse_name), lower(m.farmer_name)]) as n
+          where m.workplace_id = v_wp.id and n is not null) u), '{}');
 end $$;
 
 revoke execute on function public.taken_names(text) from public, anon;
