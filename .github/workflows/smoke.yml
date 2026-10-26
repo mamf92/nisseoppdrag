@@ -1,0 +1,47 @@
+name: Deploy smoke test
+
+# Checks a finished Vercel deployment: the login page loads and the baked-in Supabase URL and key
+# are a working pair. GitHub only runs deployment_status workflows from the default branch, so
+# this takes effect once it is on main. Run it by hand with "Run workflow" for any URL.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Deployment to check, e.g. https://nisseoppdrag-git-staging-….vercel.app
+        required: true
+      expected_ref:
+        description: Supabase project ref the deployment must use (optional)
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SMOKE_URL: ${{ inputs.url || github.event.deployment_status.environment_url }}
+      # Previews use the staging project (README, "Environments"). Production may still point at
+      # staging until prod is ready, so it is not pinned.
+      EXPECTED_SUPABASE_REF: ${{ inputs.expected_ref || (startsWith(github.event.deployment.environment, 'Preview') && 'tdootzsovfuenpqwnhsp') || '' }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @nisseoppdrag/web exec playwright install --with-deps chromium
+      - run: echo "Checking $SMOKE_URL"
+      - run: pnpm smoke
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-report
+          path: apps/web/playwright-report
+          retention-days: 7

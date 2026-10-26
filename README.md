@@ -100,6 +100,12 @@ If a Chromium is preinstalled, point Playwright at it with `PLAYWRIGHT_CHROMIUM_
 
 CI runs the same on every pull request in two jobs, `web` and `database`.
 
+Three layers guard sign-in and the Supabase wiring:
+
+- **Build time.** `vite build` checks `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (swapped, quoted, wrong host, a secret or service-role key). On Vercel, or with `REQUIRE_SUPABASE_ENV=1`, both must be set. A bad value fails the deployment instead of reaching users.
+- **CI.** `apps/web/e2e/` runs against a local Supabase with a real mail catcher (`auth.spec.ts`) and with mocked auth endpoints for the error paths (`login.spec.ts`).
+- **After deploy.** `.github/workflows/smoke.yml` runs `apps/web/smoke/` against each finished Vercel deployment: the login page loads, the bundle's URL and key are a working pair, and the preview points at the staging project. Run it by hand with `SMOKE_URL=https://… pnpm smoke`, or from the Actions tab. If Vercel deployment protection is on, add the repo secret `VERCEL_AUTOMATION_BYPASS_SECRET`.
+
 ## Secrets
 
 Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` reach the browser. No service-role key, SMTP password or access token belongs in the repo. Supabase is deliberately not linked to GitHub; migrations reach staging and prod through CI after review.
