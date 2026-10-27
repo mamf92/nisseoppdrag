@@ -27,6 +27,7 @@ export const ICON_NAMES = [
   'butter',
   'candle',
   'tulip',
+  'rosette',
   'rice',
   'milk',
   'cinnamon',
