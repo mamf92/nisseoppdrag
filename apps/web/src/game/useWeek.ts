@@ -62,6 +62,7 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
   const t = useT();
   const key = weekKey(memberId);
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
+  const [undoable, setUndoable] = useState<ReadonlySet<string>>(new Set());
   const [shaken, setShaken] = useState<number | null>(null);
   const timers = useRef(new Map<string, number>());
 
@@ -125,7 +126,6 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     },
     onMutate: async (assignmentId) => {
       await queryClient.cancelQueries({ queryKey: key });
-      const before = queryClient.getQueryData<Week>(key);
       patch((week) => ({
         ...week,
         skipLeft: false,
@@ -133,11 +133,20 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
           slot.assignmentId === assignmentId ? { ...slot, status: 'skipped' } : slot,
         ),
       }));
-      return { before };
     },
-    onError: (error, _id, context) => {
-      if (context?.before) queryClient.setQueryData(key, context.before);
+    onError: (error, assignmentId) => {
+      // Undo only this skip; a completion that succeeded meanwhile must stay.
+      patch((week) => ({
+        ...week,
+        skipLeft: true,
+        slots: week.slots.map((slot) =>
+          slot.assignmentId === assignmentId && slot.status === 'skipped'
+            ? { ...slot, status: 'open' }
+            : slot,
+        ),
+      }));
       fail(error);
+      void queryClient.invalidateQueries({ queryKey: key });
     },
     onSuccess: refreshScores,
   });
@@ -162,10 +171,16 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     (assignmentId: string) => {
       if (timers.current.has(assignmentId)) return;
       setPending((all) => new Set(all).add(assignmentId));
+      setUndoable((all) => new Set(all).add(assignmentId));
       timers.current.set(
         assignmentId,
         window.setTimeout(() => {
           timers.current.delete(assignmentId);
+          setUndoable((all) => {
+            const next = new Set(all);
+            next.delete(assignmentId);
+            return next;
+          });
           complete.mutate(assignmentId);
         }, UNDO_MS),
       );
@@ -178,11 +193,13 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     if (timer === undefined) return;
     window.clearTimeout(timer);
     timers.current.delete(assignmentId);
-    setPending((all) => {
-      const next = new Set(all);
-      next.delete(assignmentId);
-      return next;
-    });
+    for (const set of [setPending, setUndoable]) {
+      set((all) => {
+        const next = new Set(all);
+        next.delete(assignmentId);
+        return next;
+      });
+    }
   }, []);
 
   // Leaving the page must not lose a completion the player has already seen as done.
@@ -192,18 +209,26 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
   });
   useEffect(() => {
     const active = timers.current;
-    return () => {
+    const flush = () => {
       active.forEach((timer, assignmentId) => {
         window.clearTimeout(timer);
         completeRef.current(assignmentId);
       });
       active.clear();
     };
+    // Closing or reloading the tab does not unmount React, so send on pagehide too (best effort).
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      flush();
+    };
   }, []);
 
   return {
     /** Assignment ids that look done but are still inside the undo window or being sent. */
     pending,
+    /** The subset that can still be taken back: the undo window has not yet closed. */
+    undoable,
     /** The slot whose card should shake once, after a reroll. */
     shaken,
     busy: skip.isPending || reroll.isPending,

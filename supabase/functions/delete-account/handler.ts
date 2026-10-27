@@ -36,7 +36,13 @@ export async function handle(request: Request, deps: Deps): Promise<Response> {
   const user = await deps.userFor(token).catch(() => null);
   if (!user) return reply(401, 'not_signed_in');
 
-  if (await deps.isLastAdminOfLiveGroup(user.id)) return reply(409, 'last_admin');
+  // If the group's admin state cannot be established, nothing is deleted.
+  const lastAdmin = await deps.isLastAdminOfLiveGroup(user.id).then(
+    (value) => value,
+    () => null,
+  );
+  if (lastAdmin === null) return reply(503, 'check_failed');
+  if (lastAdmin) return reply(409, 'last_admin');
   const failure = await deps.deleteUser(user.id);
   if (failure) return reply(500, 'delete_failed');
   return reply(204);
