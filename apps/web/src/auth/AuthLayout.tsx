@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useT } from '../i18n/I18nProvider';
 import { LanguageSwitch } from '../ui';
 import { GateArt } from './GateArt';
@@ -25,6 +26,9 @@ export function AuthLayout({
         {lead ? <p>{lead}</p> : null}
       </div>
       {children}
+      <p className="m-0 text-sm">
+        <Link to="/personvern">{t('privacy.link')}</Link>
+      </p>
     </main>
   );
 }

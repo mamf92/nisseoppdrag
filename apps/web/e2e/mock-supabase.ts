@@ -13,6 +13,8 @@ export interface MockOptions {
   rpc?: Record<string, RpcHandler>;
   /** Rows by table for GET /rest/v1/<table>. */
   tables?: Record<string, unknown[]>;
+  /** Edge Functions by name, for POST /functions/v1/<name>. */
+  functions?: Record<string, () => Reply>;
 }
 
 export const MEMBER = {
@@ -27,7 +29,10 @@ export const MEMBER = {
   is_platform_admin: false,
 };
 
-export async function signInAs(page: Page, { me, rpc = {}, tables = {} }: MockOptions) {
+export async function signInAs(
+  page: Page,
+  { me, rpc = {}, tables = {}, functions = {} }: MockOptions,
+) {
   const session = {
     access_token: 'e2e.access.token',
     refresh_token: 'e2e-refresh',
@@ -63,6 +68,25 @@ export async function signInAs(page: Page, { me, rpc = {}, tables = {} }: MockOp
     const reply = handler(args);
     // PostgREST reports a raised exception as an error body whose message is the text raised.
     return json(route, reply);
+  });
+  await page.route(`${SUPABASE_URL}/functions/v1/*`, async (route) => {
+    const name = new URL(route.request().url()).pathname.split('/').pop() ?? '';
+    if (route.request().method() === 'OPTIONS') {
+      return route.fulfill({
+        status: 204,
+        headers: {
+          'access-control-allow-origin': '*',
+          'access-control-allow-headers': '*',
+          'access-control-allow-methods': 'POST, OPTIONS',
+        },
+      });
+    }
+    const reply = functions[name]?.() ?? { status: 404, body: { error: 'not_found' } };
+    return route.fulfill({
+      status: reply.status ?? 200,
+      headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
+      body: JSON.stringify(reply.body),
+    });
   });
   await page.route(`${SUPABASE_URL}/rest/v1/*`, (route) => {
     const table = new URL(route.request().url()).pathname.split('/').pop() ?? '';

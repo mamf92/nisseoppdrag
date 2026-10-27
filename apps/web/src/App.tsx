@@ -3,7 +3,10 @@ import { Route, Routes } from 'react-router-dom';
 import { RequireMember, RequireSignedIn } from './auth/guards';
 import { CreateGamePage } from './pages/CreateGamePage';
 import { AppShell } from './layout/AppShell';
-import { ComingSoon } from './pages/ComingSoon';
+import { BadgesPage } from './pages/BadgesPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { HomePage } from './pages/HomePage';
 import { JoinPage } from './pages/JoinPage';
 import { LoginPage } from './pages/LoginPage';
@@ -31,6 +34,7 @@ export function App() {
         />
       ) : null}
       <Route path="/velkommen" element={<WelcomePage />} />
+      <Route path="/personvern" element={<PrivacyPage />} />
       <Route path="/logg-inn" element={<LoginPage />} />
       <Route path="/bli-med/:code" element={<JoinPage />} />
       <Route
@@ -57,9 +61,9 @@ export function App() {
         }
       >
         <Route index element={<HomePage />} />
-        <Route path="toppliste" element={<ComingSoon />} />
-        <Route path="merker" element={<ComingSoon />} />
-        <Route path="meg" element={<ComingSoon />} />
+        <Route path="toppliste" element={<LeaderboardPage />} />
+        <Route path="merker" element={<BadgesPage />} />
+        <Route path="meg" element={<ProfilePage />} />
         <Route path="*" element={<HomePage />} />
       </Route>
     </Routes>
