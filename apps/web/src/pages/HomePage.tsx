@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useI18n, useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
@@ -50,8 +49,7 @@ export function HomePage() {
   const t = useT();
   const { lang } = useI18n();
   const { theme } = useTheme();
-  const { state, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { state } = useAuth();
   const week = useWeekQuery();
   const board = useLeaderboard('season');
   const badges = useBadges();
@@ -99,14 +97,6 @@ export function HomePage() {
       <header className="n-home__head">
         <h1>{t('home.welcome', { name: me.name })}</h1>
         <p className="n-home__where">{me.workplaceName}</p>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            void signOut().then(() => navigate('/logg-inn', { replace: true }));
-          }}
-        >
-          {t('auth.signout')}
-        </Button>
       </header>
 
       {week.isPending ? <p role="status">{t('app.loading')}</p> : null}

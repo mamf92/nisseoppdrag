@@ -19,6 +19,8 @@ export interface FakeOptions {
   taken?: string[];
   takenError?: Failure | null;
   /** Answers for other RPCs by name; a thrown-away default is `{ data: null, error: null }`. */
+  /** What `functions.invoke('delete-account')` resolves with. */
+  deleteAccount?: { error: unknown } | null;
   /** Rows for table reads by table name. */
   tables?: Record<string, unknown[]>;
   rpc?: Record<string, (args: unknown) => { data: unknown; error: Failure | null }>;
@@ -47,6 +49,7 @@ export function fakeClient(options: FakeOptions = {}) {
     verifyOtp: vi.fn(),
     rpc: vi.fn(),
     signOut: vi.fn(),
+    invoke: vi.fn(),
   };
   const client = {
     auth: {
@@ -89,6 +92,12 @@ export function fakeClient(options: FakeOptions = {}) {
       const handler = options.rpc?.[name];
       if (handler) return Promise.resolve(handler(args));
       return Promise.resolve({ data: null, error: null });
+    },
+    functions: {
+      invoke: (name: string, args?: unknown) => {
+        calls.invoke(name, args);
+        return Promise.resolve({ data: null, error: options.deleteAccount?.error ?? null });
+      },
     },
     // A table read is a chain of select/order/limit/eq ending in an await.
     from: (table: string) => {

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Db } from '../lib/supabase';
@@ -48,6 +49,8 @@ interface AuthContextValue {
   redeemInvite: (code: string, story: Story, name: string) => Promise<AuthError | null>;
   /** The names already in use (lower-cased) in the group behind an invite code. */
   takenNames: (code: string) => Promise<{ names: Set<string> } | { error: AuthError }>;
+  /** Deletes the account and everything in it (the Edge Function), then signs out. */
+  deleteAccount: () => Promise<AuthError | null>;
   /** Switches story; the name is for that story, and can be left out when the player has one. */
   updateProfile: (story: Story, name?: string) => Promise<AuthError | null>;
 }
@@ -174,6 +177,30 @@ export function AuthProvider({
         return {
           names: new Set(Array.isArray(data) ? data.map((n) => n.toLowerCase()) : []),
         };
+      },
+      async deleteAccount() {
+        if (!client) return missing;
+        const result: { error: unknown } = await client.functions.invoke<unknown>(
+          'delete-account',
+          {
+            method: 'POST',
+          },
+        );
+        const { error } = result;
+        if (error) {
+          // A refused call carries the function's own error code in the response body.
+          if (error instanceof FunctionsHttpError) {
+            const response = error.context as Response;
+            const body: unknown = await response.json().catch(() => null);
+            const code = isRecord(body) ? str(body['error']) : undefined;
+            if (code) return { message: code, status: response.status };
+          }
+          return { message: error instanceof Error ? error.message : 'unknown' };
+        }
+        // The user no longer exists, so there is no server-side session left to revoke.
+        await client.auth.signOut({ scope: 'local' });
+        setState({ status: 'signedOut' });
+        return null;
       },
       async updateProfile(story, name) {
         if (!client) return missing;

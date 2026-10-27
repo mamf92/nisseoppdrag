@@ -393,6 +393,11 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+# The function checks the caller's token itself (auth.getUser), which also works with the newer
+# signing keys; the gateway check would only repeat it.
+[functions.delete-account]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 

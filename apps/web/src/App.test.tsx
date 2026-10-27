@@ -57,10 +57,10 @@ describe('routing and guards', () => {
     expect(window.sessionStorage.getItem('nisse-invite')).toBe('ABC123');
   });
 
-  it('signs out from the home page', async () => {
+  it('signs out from the profile page', async () => {
     const user = userEvent.setup();
     const { client, calls } = fakeClient({ session: true, me: MEMBER_ME });
-    renderWithProviders(<App />, { client });
+    renderWithProviders(<App />, { client, route: '/meg' });
     await user.click(await screen.findByRole('button', { name: 'Logg ut' }));
     expect(await screen.findByRole('heading', { name: 'Logg inn' })).toBeInTheDocument();
     expect(calls.signOut).toHaveBeenCalled();
