@@ -49,6 +49,27 @@
 .n-note p {
   margin: 0;
 }
+.n-note--painted {
+  padding: 0 0 18px;
+  overflow: hidden;
+  justify-items: center;
+  text-align: center;
+}
+.n-note--painted > :not(picture) {
+  padding-inline: 16px;
+}
+.n-note--painted picture {
+  display: block;
+  width: 100%;
+}
+.n-note__painting {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: cover;
+  margin-bottom: 6px;
+}
 .n-actions {
   display: flex;
   flex-wrap: wrap;

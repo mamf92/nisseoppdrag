@@ -14,7 +14,14 @@ export { LeaderboardRow } from './LeaderboardRow';
 export { MissionCard } from './MissionCard';
 export type { MissionStatus } from './MissionCard';
 export { NisseAvatar } from './NisseAvatar';
-export { RosemalingDivider, TulipCorners } from './Ornaments';
+export {
+  CarvedBand,
+  CarvedRosette,
+  RosemalingCorner,
+  RosemalingDivider,
+  RosemalingSprig,
+  TulipCorners,
+} from './Ornaments';
 export { Sheet } from './Sheet';
 export { StatTile } from './StatTile';
 export { LanguageSwitch, ThemeSwitch } from './Switches';
