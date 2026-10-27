@@ -136,3 +136,16 @@ test('no snow with reduced motion', async ({ page }) => {
   await page.waitForTimeout(300);
   await expect(page.locator('.n-snow')).toHaveCount(0);
 });
+
+test('the viewer buttons stay reachable on a short landscape phone', async ({ page }) => {
+  await page.setViewportSize({ width: 740, height: 300 });
+  await openBadges(page, 'gaarden');
+  await page.getByRole('button', { name: 'Se Første grøtskje nærmere' }).click();
+  const close = page.getByRole('dialog').getByRole('button', { name: 'Lukk' });
+  // Scroll the way a person does; a hidden overflow would ignore the wheel.
+  await page.mouse.move(370, 150);
+  await page.mouse.wheel(0, 2000);
+  await expect(close).toBeInViewport({ ratio: 1 });
+  await close.click();
+  await expect(page.getByRole('dialog')).toBeHidden();
+});

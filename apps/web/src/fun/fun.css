@@ -34,7 +34,10 @@
   border: 0;
   background: transparent;
   color: #f7efe0;
-  overflow: hidden;
+  /* Short landscape screens and large text scroll rather than hide the buttons. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .n-viewer::backdrop {
   background:
