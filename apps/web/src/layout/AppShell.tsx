@@ -3,6 +3,7 @@ import { AppNav } from '../ui';
 import { PLAYER_NAV } from '../ui';
 import type { NavItem } from '../ui/AppNav';
 import { useAuth } from '../auth/AuthProvider';
+import { Eyes, Snowfall } from '../fun';
 
 const ADMIN_NAV: NavItem = { to: '/kontor', labelKey: 'nav.office', icon: 'key' };
 
@@ -17,6 +18,8 @@ export function AppShell() {
       <div className="n-shell__main">
         <Outlet />
       </div>
+      <Snowfall />
+      <Eyes />
     </div>
   );
 }

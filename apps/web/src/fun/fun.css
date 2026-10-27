@@ -1,0 +1,362 @@
+/* Easter eggs and small flourishes. The coin's wood is part of the artwork (it matches the carved
+   rim of the medallions), so it uses fixed colours in both themes; everything else uses tokens.
+   Every animation here is switched off by the reduced-motion rule in themes/tokens.css, and the
+   scripts check the same setting before they move anything. */
+
+/* ---------- badge viewer: the medallion as a wooden coin ---------- */
+.n-badge__open {
+  all: unset;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s ease;
+}
+.n-badge__open:hover {
+  transform: translateY(-2px) rotate(-4deg);
+}
+.n-badge__open:active {
+  transform: scale(0.94);
+}
+.n-badge__open:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.n-viewer {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f7efe0;
+  /* Short landscape screens and large text scroll rather than hide the buttons. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.n-viewer::backdrop {
+  background:
+    radial-gradient(circle at 50% 42%, rgb(244 183 64 / 0.22), transparent 55%),
+    rgb(10 12 20 / 0.86);
+  backdrop-filter: blur(3px);
+}
+.n-viewer[open] {
+  animation: n-viewer-in 0.25s ease-out;
+}
+@keyframes n-viewer-in {
+  from {
+    opacity: 0;
+  }
+}
+.n-viewer__inner {
+  min-height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  text-align: center;
+}
+.n-viewer__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  color: #fff6e4;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.5);
+}
+.n-viewer__how {
+  margin: 0;
+  max-width: 26rem;
+  color: #e8dcc4;
+}
+.n-viewer__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #cdbb9f;
+  min-height: 1.3em;
+}
+.n-viewer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.n-viewer__actions .n-btn--ghost {
+  color: #f7efe0;
+  box-shadow: inset 0 0 0 1.5px rgb(247 239 224 / 0.5);
+}
+
+.n-viewer__stage {
+  --coin: min(72vw, 46vh, 320px);
+  width: var(--coin);
+  height: var(--coin);
+  perspective: 900px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.n-viewer__stage {
+  position: relative;
+}
+/* The coin's shadow on the floor, outside the 3D scene so it never flattens it. */
+.n-viewer__stage::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: -9%;
+  height: 8%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
+  pointer-events: none;
+}
+.n-viewer__stage:active {
+  cursor: grabbing;
+}
+.n-coin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.n-coin__edge,
+.n-coin__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+/* Stacked discs make the coin's thickness visible when it is seen edge-on. */
+.n-coin__edge {
+  background: #4a2c17;
+  box-shadow: inset 0 0 0 2px #2f1b0d;
+}
+.n-coin__face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.n-coin__front {
+  transform: translateZ(5px);
+}
+.n-coin__front img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.n-coin--locked .n-coin__front img {
+  filter: grayscale(1) brightness(0.75);
+}
+/* A band of light that slides across the face as it turns (--sheen is the angle, 0 to 360). */
+.n-coin__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgb(255 240 200 / 0.75) 48%,
+    transparent 62%
+  );
+  background-size: 300% 100%;
+  background-position: calc(100% - (var(--sheen, 0) / 360 * 100%)) 0;
+}
+.n-coin__back {
+  transform: rotateY(180deg) translateZ(5px);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 18%;
+  color: #f6e7c8;
+  text-align: center;
+  font-size: clamp(0.85rem, 3.6vw, 1.05rem);
+  line-height: 1.25;
+  /* Carved rim of chip triangles around a planed wooden centre. */
+  background:
+    radial-gradient(circle, transparent 62%, #2f1b0d 62.5%, transparent 64%),
+    radial-gradient(circle at 40% 35%, #8a5a33, #5c3a20 60%, #43291a 100%), #5c3a20;
+  box-shadow:
+    inset 0 0 0 10px #4a2c17,
+    inset 0 0 0 12px #c99a45,
+    inset 0 0 0 30px #5a3820,
+    inset 0 0 26px 30px rgb(0 0 0 / 0.35);
+}
+.n-coin__back::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    #9a6a3e 0deg,
+    #2f1b0d 10deg
+  ); /* each 10° is one chip, lit on one side */
+  -webkit-mask: radial-gradient(
+    circle closest-side,
+    transparent 84%,
+    #000 85%,
+    #000 99%,
+    transparent
+  );
+  mask: radial-gradient(circle closest-side, transparent 84%, #000 85%, #000 99%, transparent);
+  opacity: 0.9;
+}
+.n-coin__back b {
+  font-family: var(--font-display-stack);
+  font-size: 1.35em;
+  line-height: 1.1;
+  color: #ffe9b8;
+}
+.n-coin__back small {
+  color: #f4b740;
+  font-weight: 700;
+}
+.n-coin__rose {
+  width: 1.6em;
+  height: 1.6em;
+  color: #f4b740;
+}
+.n-coin__rose--down {
+  transform: rotate(180deg);
+}
+
+/* ---------- little reactions to taps ---------- */
+.n-boop {
+  animation: n-boop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+@keyframes n-boop {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12, 0.9) translateY(2px);
+  }
+  60% {
+    transform: scale(0.95, 1.08) translateY(-6px);
+  }
+  100% {
+    transform: none;
+  }
+}
+.n-rattle {
+  animation: n-rattle 0.45s ease-in-out;
+}
+@keyframes n-rattle {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(3.5deg);
+  }
+  60% {
+    transform: rotate(-2.5deg);
+  }
+  80% {
+    transform: rotate(1.5deg);
+  }
+}
+.n-flicker .n-pane--lit {
+  animation: n-flicker 0.6s steps(6, jump-none);
+}
+@keyframes n-flicker {
+  0% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------- snowfall over the whole app ---------- */
+.n-snow {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* ---------- Låven: a pair of eyes in the dark ---------- */
+.n-eyes {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  gap: 9px;
+  padding: 10px;
+  border: 0;
+  background: none;
+  cursor: default;
+  opacity: 0;
+  animation: n-eyes 7s ease-in-out forwards;
+  -webkit-tap-highlight-color: transparent;
+}
+.n-eyes i {
+  width: 9px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffd36a;
+  box-shadow:
+    0 0 6px 2px rgb(255 196 72 / 0.75),
+    0 0 18px 6px rgb(255 170 40 / 0.25);
+  animation: n-blink 3.2s 1.2s infinite;
+}
+.n-eyes--gone {
+  animation: n-eyes-gone 0.25s ease-in forwards;
+}
+@keyframes n-eyes {
+  0% {
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes n-eyes-gone {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.1);
+  }
+}
+@keyframes n-blink {
+  0%,
+  90%,
+  100% {
+    transform: none;
+  }
+  94% {
+    transform: scaleY(0.1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-eyes {
+    opacity: 1;
+  }
+}
