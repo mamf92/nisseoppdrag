@@ -1,4 +1,5 @@
 import {
+  generateFreeNisseName,
   generateNisseName,
   isValidNisseName,
   NAME_MAX,
@@ -36,5 +37,23 @@ describe('nisse names', () => {
     expect(isValidNisseName('a'.repeat(NAME_MAX + 1))).toBe(false);
     expect(isValidNisseName('ola@firma.no')).toBe(false);
     expect(isValidNisseName('<b>nisse')).toBe(false);
+  });
+
+  it('leaves taken names out when it suggests one', () => {
+    const all = NAME_PREFIXES.flatMap((p) => NAME_SUFFIXES.map((s) => `${p}${s}`.toLowerCase()));
+    const taken = new Set(all);
+    taken.delete('grøtnissen');
+    for (let i = 0; i < 20; i++) expect(generateFreeNisseName(taken)).toBe('Grøtnissen');
+  });
+
+  it('adds a numeral only when every combination is taken, and skips taken numerals', () => {
+    const all = new Set(
+      NAME_PREFIXES.flatMap((p) => NAME_SUFFIXES.map((s) => `${p}${s}`.toLowerCase())),
+    );
+    const name = generateFreeNisseName(all, () => 0);
+    expect(name).toBe('Grøtnissen II');
+    all.add('grøtnissen ii');
+    expect(generateFreeNisseName(all, () => 0)).toBe('Grøtnissen III');
+    expect(isValidNisseName(name)).toBe(true);
   });
 });

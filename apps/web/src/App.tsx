@@ -1,10 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { RequireMember, RequireSignedIn } from './auth/guards';
+import { CreateGamePage } from './pages/CreateGamePage';
 import { HomePage } from './pages/HomePage';
 import { JoinPage } from './pages/JoinPage';
 import { LoginPage } from './pages/LoginPage';
 import { OnboardingPage } from './pages/OnboardingPage';
+import { WelcomePage } from './pages/WelcomePage';
 
 // The component showcase exists in `pnpm dev` and in builds made with VITE_DEV_UI=true (the
 // Playwright run). It is not part of the production bundle.
@@ -26,6 +28,7 @@ export function App() {
           }
         />
       ) : null}
+      <Route path="/velkommen" element={<WelcomePage />} />
       <Route path="/logg-inn" element={<LoginPage />} />
       <Route path="/bli-med/:code" element={<JoinPage />} />
       <Route
@@ -33,6 +36,14 @@ export function App() {
         element={
           <RequireSignedIn>
             <OnboardingPage />
+          </RequireSignedIn>
+        }
+      />
+      <Route
+        path="/lag-spill"
+        element={
+          <RequireSignedIn>
+            <CreateGamePage />
           </RequireSignedIn>
         }
       />

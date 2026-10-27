@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
+import { storeIntent } from '../auth/intent';
 import { storeInvite } from '../auth/invite';
 import { useT } from '../i18n/I18nProvider';
 
@@ -11,7 +12,10 @@ export function JoinPage() {
   const t = useT();
 
   useEffect(() => {
-    if (code) storeInvite(code);
+    if (code) {
+      storeInvite(code);
+      storeIntent('join');
+    }
   }, [code]);
 
   if (state.status === 'loading')

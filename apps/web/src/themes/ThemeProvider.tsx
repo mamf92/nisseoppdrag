@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { applyTheme, initialTheme, storeTheme } from './theme';
+import { flushSync } from 'react-dom';
+import { applyTheme, initialTheme, storeTheme, transitionTheme } from './theme';
 import type { Theme } from './theme';
 
 interface ThemeContextValue {
@@ -19,7 +20,18 @@ export function ThemeProvider({ children, initial }: { children: ReactNode; init
 
   const setTheme = useCallback((next: Theme) => {
     storeTheme(next);
-    setThemeState(next);
+    // The browser fades from the old look to the new one; without that, the switch is instant.
+    transitionTheme(
+      () => {
+        applyTheme(next);
+        flushSync(() => {
+          setThemeState(next);
+        });
+      },
+      () => {
+        setThemeState(next);
+      },
+    );
   }, []);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme]);

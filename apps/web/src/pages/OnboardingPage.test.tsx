@@ -1,7 +1,9 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { UserEvent } from '@testing-library/user-event';
 import { App } from '../App';
+import { FARM_NAMES } from '../auth/farmerName';
+import { NAME_PREFIXES, NAME_SUFFIXES } from '../auth/nisseName';
 import { fakeClient } from '../test-auth';
 import { renderWithProviders } from '../test-utils';
 
@@ -54,7 +56,35 @@ describe('onboarding', () => {
     expect(await screen.findByRole('heading', { name: 'Velg din historie' })).toBeInTheDocument();
   });
 
-  it('picks a farmer name from the lists in Låven and a nisse name in Gården', async () => {
+  it('shows the stories without the gate painting, one next to the other', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const { container } = renderWithProviders(<App />, {
+      client: fakeClient(SIGNED_IN).client,
+      route: '/onboarding',
+    });
+    expect(await screen.findByRole('heading', { name: 'Velg din historie' })).toBeInTheDocument();
+    expect(container.querySelector('.n-gate')).toBeNull();
+    expect(container.querySelectorAll('.n-stories .n-story')).toHaveLength(2);
+  });
+
+  it('folds the heading into a bar when the page is scrolled', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const { container } = renderWithProviders(<App />, {
+      client: fakeClient(SIGNED_IN).client,
+      route: '/onboarding',
+    });
+    await screen.findByRole('heading', { name: 'Velg din historie' });
+    const head = container.querySelector('.n-storyhead');
+    expect(head).not.toHaveAttribute('data-compact');
+    Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
+    fireEvent.scroll(window);
+    await waitFor(() => {
+      expect(head).toHaveAttribute('data-compact', 'true');
+    });
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+  });
+
+  it('suggests a free farm name in Låven that can be changed from the lists', async () => {
     window.sessionStorage.setItem('nisse-invite', 'ABC123');
     const user = userEvent.setup();
     const { client, calls } = fakeClient(SIGNED_IN);
@@ -63,8 +93,13 @@ describe('onboarding', () => {
     await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
     expect(document.documentElement.dataset['nisseTheme']).toBe('laaven');
     await toNameStep(user);
+    expect(calls.rpc).toHaveBeenCalledWith('taken_names', { p_code: 'ABC123' });
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Kvinnenavn' }));
+    // There is no gender choice, and the lists are hidden until "Bytt?" is pressed.
+    expect(screen.queryByRole('button', { name: 'Kvinnenavn' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Fornavn')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Bytt?' }));
     await user.selectOptions(screen.getByLabelText('Fornavn'), 'Sigrid');
     await user.selectOptions(screen.getByLabelText('Gårdsnavn'), 'Vik');
     expect(screen.getByText('Sigrid Vik')).toBeInTheDocument();
@@ -76,29 +111,105 @@ describe('onboarding', () => {
     });
   });
 
-  it('switches the first-name list with the kind of name and can draw a random farmer', async () => {
+  it('keeps taken farm names off the lists and out of the shuffle', async () => {
     window.sessionStorage.setItem('nisse-invite', 'ABC123');
     const user = userEvent.setup();
-    renderWithProviders(<App />, { client: fakeClient(SIGNED_IN).client, route: '/onboarding' });
+    const taken = FARM_NAMES.map((farm) => `ivar ${farm.toLowerCase()}`).filter(
+      (name) => name !== 'ivar ruud',
+    );
+    taken.push('ola ruud');
+    const { client } = fakeClient({ ...SIGNED_IN, taken });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
     await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
     await toNameStep(user);
-    await user.click(screen.getByRole('button', { name: 'Mannsnavn' }));
-    expect(screen.getByRole('option', { name: 'Ola' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Kari' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Tilfeldig' }));
-    expect(screen.getByLabelText('Fornavn')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Bytt?' }));
+
+    // Only Ruud is left for Ivar; Ola Ruud is gone from Ola's farm names.
+    await user.selectOptions(screen.getByLabelText('Fornavn'), 'Ivar');
+    expect(within(screen.getByLabelText('Gårdsnavn')).getAllByRole('option')).toHaveLength(1);
+    expect(screen.getByText('Ivar Ruud')).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Fornavn'), 'Ola');
+    expect(screen.queryByRole('option', { name: 'Ruud' })).not.toBeInTheDocument();
+
+    // The shuffle never lands on a taken name.
+    for (let i = 0; i < 15; i++) {
+      await user.click(screen.getByRole('button', { name: 'Overrask meg!' }));
+      const shown = screen.getByLabelText<HTMLSelectElement>('Fornavn');
+      const farm = screen.getByLabelText<HTMLSelectElement>('Gårdsnavn');
+      expect(taken).not.toContain(`${shown.value} ${farm.value}`.toLowerCase());
+    }
   });
 
-  it('suggests a nisse name in Gården and offers a new one', async () => {
+  it('suggests a nisse name in Gården that nobody has, and offers a new one', async () => {
     window.sessionStorage.setItem('nisse-invite', 'ABC123');
     const user = userEvent.setup();
-    renderWithProviders(<App />, { client: fakeClient(SIGNED_IN).client, route: '/onboarding' });
+    const all = NAME_PREFIXES.flatMap((p) => NAME_SUFFIXES.map((s) => `${p}${s}`.toLowerCase()));
+    const left = 'lyktenissa';
+    const { client } = fakeClient({ ...SIGNED_IN, taken: all.filter((n) => n !== left) });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
     await user.click(await screen.findByRole('radio', { name: /Full låve/ }));
     await toNameStep(user);
     const nisse = await screen.findByLabelText<HTMLInputElement>('Nissenavn');
-    expect(nisse.value).toMatch(/(nissen|nissa|tufsen)$/);
+    expect(nisse.value).toBe('Lyktenissa');
     await user.click(screen.getByRole('button', { name: 'Nytt forslag' }));
-    expect(nisse.value).toMatch(/(nissen|nissa|tufsen)$/);
+    expect(nisse.value).toBe('Lyktenissa');
+  });
+
+  it('refuses a nisse name that is taken before asking the server', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    const { client, calls } = fakeClient({ ...SIGNED_IN, taken: ['lykteta'] });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Full låve/ }));
+    await toNameStep(user);
+    const name = await screen.findByLabelText('Nissenavn');
+    await user.clear(name);
+    await user.type(name, 'LYKTETA');
+    await user.click(screen.getByRole('button', { name: 'Bli med' }));
+    expect(await screen.findByText(/Det navnet er tatt/)).toBeInTheDocument();
+    expect(calls.rpc).not.toHaveBeenCalledWith('redeem_invite', expect.anything());
+  });
+
+  it('moves to a free name when the server says the chosen one was just taken', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    const { client, calls } = fakeClient({ ...SIGNED_IN, redeemError: { message: 'name_taken' } });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
+    await toNameStep(user);
+    await user.click(screen.getByRole('button', { name: 'Bli med' }));
+    expect(await screen.findByText(/Det navnet er tatt/)).toBeInTheDocument();
+    // The list was fetched again to find a free name.
+    expect(calls.rpc.mock.calls.filter(([name]) => name === 'taken_names')).toHaveLength(2);
+  });
+
+  it('still suggests a farm name when the lookup of taken names fails', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'ABC123');
+    const user = userEvent.setup();
+    const { client, calls } = fakeClient({
+      ...SIGNED_IN,
+      takenError: { message: 'Failed to fetch' },
+    });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    await user.click(await screen.findByRole('radio', { name: /Grøt til nissen/ }));
+    await toNameStep(user);
+    expect(screen.getByText('Ditt navn')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Bli med' }));
+    expect(calls.rpc).toHaveBeenCalledWith(
+      'redeem_invite',
+      expect.objectContaining({ p_story: 'laaven' }),
+    );
+  });
+
+  it('goes back to the code step when the code is refused while looking up names', async () => {
+    window.sessionStorage.setItem('nisse-invite', 'OLD');
+    const user = userEvent.setup();
+    const { client } = fakeClient({ ...SIGNED_IN, takenError: { message: 'invite_invalid' } });
+    renderWithProviders(<App />, { client, route: '/onboarding' });
+    await user.click(await screen.findByRole('button', { name: 'Neste' }));
+    expect(await screen.findByLabelText('Invitasjonskode')).toBeInTheDocument();
+    expect(screen.getByText(/Invitasjonskoden er ugyldig/)).toBeInTheDocument();
   });
 
   it('sends the user back to the code step when the remembered code is refused', async () => {
@@ -116,7 +227,7 @@ describe('onboarding', () => {
 
   it.each([
     ['domain_not_allowed', /E-postadressen din hører ikke til/],
-    ['name_taken', /Det nissenavnet er tatt/],
+    ['name_taken', /Det navnet er tatt/],
     ['already_member', /Du er allerede med/],
     ['something_else', /Noe gikk galt/],
   ])('maps the server error %s to copy', async (message, copy) => {

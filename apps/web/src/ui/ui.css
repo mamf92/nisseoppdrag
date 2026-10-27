@@ -866,6 +866,13 @@
   background: var(--surface);
   box-shadow: 0 0 0 1px var(--line);
   cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s ease,
+    filter 0.35s ease;
+}
+.n-story:hover {
+  transform: translateY(-3px);
 }
 .n-story input {
   position: absolute;
@@ -882,6 +889,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.n-story:hover img,
+.n-story:has(input:checked) img {
+  transform: scale(1.04);
 }
 .n-story__title {
   padding: 12px 14px 0;
@@ -901,4 +913,137 @@
 .n-story:has(input:focus-visible) {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
+}
+
+/* ---------- choose a story ---------- */
+.n-storypage {
+  display: grid;
+  gap: 20px;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+/* The heading stays at the top. Scrolled, it shrinks into a bar and the lead folds away. */
+.n-storyhead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  gap: 4px;
+  margin: 0 -16px;
+  padding: 16px 16px 10px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 transparent;
+  transition:
+    padding 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.5s ease;
+}
+.n-storyhead__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.n-storyhead h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4vw + 1rem, 3rem);
+  line-height: 1.1;
+  transform-origin: left center;
+  transition: font-size 0.3s ease;
+}
+.n-storyhead__lead {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.3s ease,
+    opacity 0.25s ease;
+}
+.n-storyhead__lead > p {
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+.n-storyhead[data-compact='true'] {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  box-shadow: 0 1px 0 var(--line);
+}
+.n-storyhead[data-compact='true'] h1 {
+  font-size: 1.35rem;
+}
+.n-storyhead[data-compact='true'] .n-storyhead__lead {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.n-stories {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+@media (min-width: 768px) {
+  .n-stories {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+/* The story you are not on rests a little, so the chosen one reads as lit. */
+.n-stories:has(input:checked) .n-story:not(:has(input:checked)) {
+  filter: saturate(0.75);
+}
+.n-storypage__note {
+  margin: 0;
+  color: var(--ink-muted);
+}
+.n-storypage__actions {
+  display: grid;
+  gap: 12px;
+  max-width: 28rem;
+}
+
+/* ---------- farm name picker ---------- */
+.n-namepick {
+  display: grid;
+  gap: 12px;
+}
+.n-namepick__label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--ink-muted);
+}
+.n-namepick__name {
+  margin: 0;
+  font-family: var(--font-display-stack);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.n-namepick__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* First name and farm name stay side by side on every screen size. */
+.n-namepick__lists {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.n-namepick__lists select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The theme change fades instead of snapping (browsers with view transitions). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
 }

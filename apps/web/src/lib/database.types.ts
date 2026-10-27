@@ -622,6 +622,7 @@ export type Database = {
       };
       reroll_assignment: { Args: { p_assignment: string }; Returns: Json };
       skip_assignment: { Args: { p_assignment: string }; Returns: Json };
+      taken_names: { Args: { p_code: string }; Returns: string[] };
       update_profile: {
         Args: { p_name?: string; p_story: Database['public']['Enums']['story'] };
         Returns: undefined;

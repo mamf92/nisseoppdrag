@@ -44,6 +44,8 @@ interface AuthContextValue {
   retry: () => Promise<void>;
   /** Joins a workplace and loads the new membership. */
   redeemInvite: (code: string, story: Story, name: string) => Promise<AuthError | null>;
+  /** The names already in use (lower-cased) in the group behind an invite code. */
+  takenNames: (code: string) => Promise<{ names: Set<string> } | { error: AuthError }>;
   /** Switches story; the name is for that story, and can be left out when the player has one. */
   updateProfile: (story: Story, name?: string) => Promise<AuthError | null>;
 }
@@ -161,6 +163,14 @@ export function AuthProvider({
         if (error) return error;
         await reload();
         return null;
+      },
+      async takenNames(code) {
+        if (!client) return { error: missing };
+        const { data, error } = await client.rpc('taken_names', { p_code: code.trim() });
+        if (error) return { error };
+        return {
+          names: new Set(Array.isArray(data) ? data.map((n) => n.toLowerCase()) : []),
+        };
       },
       async updateProfile(story, name) {
         if (!client) return missing;

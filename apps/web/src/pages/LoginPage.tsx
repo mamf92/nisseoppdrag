@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../auth/AuthLayout';
 import { useAuth } from '../auth/AuthProvider';
 import { errorKey, isEmail } from '../auth/errors';
+import { firstStepFor, readIntent } from '../auth/intent';
 import { useT } from '../i18n/I18nProvider';
 import { Button, TextField } from '../ui';
 
@@ -17,6 +18,7 @@ export function LoginPage() {
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [error, setError] = useState<string | undefined>();
+  const [intent] = useState(() => readIntent());
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export function LoginPage() {
       const from = (location.state as { from?: string } | null)?.from;
       void navigate(from ?? '/', { replace: true });
     } else if (state.status === 'signedIn') {
-      void navigate('/onboarding', { replace: true });
+      void navigate(firstStepFor(readIntent()), { replace: true });
     }
   }, [state, navigate, location.state]);
 
@@ -53,7 +55,7 @@ export function LoginPage() {
 
   if (step === 'email') {
     return (
-      <AuthLayout title={t('auth.login.title')} lead={t('auth.login.lead')}>
+      <AuthLayout title={t(`auth.login.title.${intent ?? 'none'}`)} lead={t('auth.login.lead')}>
         <form className="grid gap-4" onSubmit={(e) => void submitEmail(e)} noValidate>
           <TextField
             label={t('auth.email.label')}
