@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { useBoop } from '../fun/motion';
 import { useI18n } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import type { Theme } from '../themes/theme';
@@ -42,6 +44,9 @@ function Hatch({
   theme: Theme;
 }) {
   const { t } = useI18n();
+  const ref = useRef<HTMLLIElement>(null);
+  // A tap on a hatch: the gift behind an opened one hops, a shut one rattles.
+  useBoop(ref, state === 'done' ? 'n-boop' : 'n-rattle');
   const n = index + 1;
   const label = t(`hatch.${state}`, { n }) + ', ' + t(`category.${category}`);
 
@@ -49,6 +54,7 @@ function Hatch({
     const art = hatchArt(theme, category);
     return (
       <li
+        ref={ref}
         className={cx('n-hatch', 'n-hatch--done', art.kind === 'portrait' && 'n-hatch--portrait')}
         data-cat={category}
         data-state="done"
@@ -66,6 +72,7 @@ function Hatch({
 
   return (
     <li
+      ref={ref}
       className={cx(
         'n-hatch',
         state === 'open' && 'n-hatch--open',
