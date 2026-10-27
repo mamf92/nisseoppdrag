@@ -15,6 +15,8 @@ export interface MockOptions {
   tables?: Record<string, unknown[]>;
   /** Edge Functions by name, for POST /functions/v1/<name>. */
   functions?: Record<string, () => Reply>;
+  /** Collects every write (POST, PATCH, DELETE) to a table, in order. */
+  writes?: { method: string; table: string; body: unknown }[];
 }
 
 export const MEMBER = {
@@ -31,7 +33,7 @@ export const MEMBER = {
 
 export async function signInAs(
   page: Page,
-  { me, rpc = {}, tables = {}, functions = {} }: MockOptions,
+  { me, rpc = {}, tables = {}, functions = {}, writes }: MockOptions,
 ) {
   const session = {
     access_token: 'e2e.access.token',
@@ -90,6 +92,11 @@ export async function signInAs(
   });
   await page.route(`${SUPABASE_URL}/rest/v1/*`, (route) => {
     const table = new URL(route.request().url()).pathname.split('/').pop() ?? '';
+    const method = route.request().method();
+    if (method !== 'GET' && method !== 'HEAD') {
+      writes?.push({ method, table, body: route.request().postDataJSON() as unknown });
+      return route.fulfill({ status: 201, contentType: 'application/json', body: '[]' });
+    }
     return json(route, { body: tables[table] ?? [] });
   });
 }

@@ -62,17 +62,11 @@ export function RequireSignedIn({ children }: { children: ReactNode }) {
 // Workplace admins (and platform admins). The database enforces this too; this only hides pages.
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const { state } = useAuth();
-  const t = useT();
   if (state.status === 'loading') return <Loading />;
   if (state.status === 'error') return <LoadFailed />;
   if (state.status === 'signedOut') return <Navigate to="/logg-inn" replace />;
   if (state.status === 'signedIn') return <Navigate to="/onboarding" replace />;
-  if (state.me.role !== 'admin' && !state.me.isPlatformAdmin) {
-    return (
-      <p role="alert" className="p-6">
-        {t('guard.forbidden')}
-      </p>
-    );
-  }
+  // A player who types /kontor lands back on their own home.
+  if (state.me.role !== 'admin' && !state.me.isPlatformAdmin) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
