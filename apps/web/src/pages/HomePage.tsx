@@ -186,6 +186,7 @@ export function HomePage() {
                               }
                             : undefined
                       }
+                      undoDisabled={!undoable && actions.busy}
                       undoNote={undoable ? t('home.undo.text', { n: UNDO_MS / 1000 }) : undefined}
                     />
                   </li>

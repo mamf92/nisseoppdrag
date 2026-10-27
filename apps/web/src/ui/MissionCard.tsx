@@ -30,6 +30,8 @@ export interface MissionCardProps {
   onUndo?: () => void;
   /** Says why the undo is there, for example the seconds left before a completion is sent. */
   undoNote?: string;
+  /** Holds the undo back, for example while the request it would take back is still in flight. */
+  undoDisabled?: boolean;
 }
 
 export function MissionCard({
@@ -49,6 +51,7 @@ export function MissionCard({
   onReroll,
   onUndo,
   undoNote,
+  undoDisabled,
 }: MissionCardProps) {
   const t = useT();
   const titleId = useId();
@@ -99,7 +102,7 @@ export function MissionCard({
           {onUndo ? (
             <p className="n-undo" role="status">
               {undoNote ? <span>{undoNote}</span> : null}
-              <Button variant="ghost" onClick={onUndo}>
+              <Button variant="ghost" disabled={undoDisabled} onClick={onUndo}>
                 {t('home.undo')}
               </Button>
             </p>
