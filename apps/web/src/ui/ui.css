@@ -705,6 +705,9 @@
     max-height: 100vh;
     border-radius: 0;
   }
+  .n-sheet--wide {
+    width: min(960px, 100vw);
+  }
 }
 
 /* ---------- form fields ---------- */

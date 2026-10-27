@@ -7,6 +7,7 @@ const CODES: Record<string, MessageKey> = {
   week_closed: 'game.error.week_closed',
   no_alternative: 'game.error.no_alternative',
   not_open: 'game.error.not_open',
+  not_skipped: 'game.error.not_open',
   not_found: 'game.error.not_open',
   forbidden: 'game.error.forbidden',
   last_admin: 'admin.error.last_admin',
@@ -23,7 +24,12 @@ export function gameErrorKey(error: { message?: string }): MessageKey {
 
 /** Errors after which the week on screen is stale and should be loaded again. */
 export function shouldRefetch(error: { message?: string }): boolean {
-  return ['skip_used', 'reroll_used', 'week_closed', 'not_open', 'not_found'].includes(
-    error.message ?? '',
-  );
+  return [
+    'skip_used',
+    'reroll_used',
+    'week_closed',
+    'not_open',
+    'not_skipped',
+    'not_found',
+  ].includes(error.message ?? '');
 }

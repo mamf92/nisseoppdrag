@@ -1,23 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { useI18n, useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import { useCurrentSeason, useLeaderboard, useBadges, badgeFile } from '../game/queries';
 import { UNDO_MS, useWeekActions, useWeekQuery } from '../game/useWeek';
-import { completedCount, countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
+import { countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
 import type { Slot, Week } from '../game/week';
 import { Moment, StoryPainting } from '../home/Moment';
 import { useNow } from '../home/useNow';
-import {
-  Badge,
-  Button,
-  CATEGORIES,
-  Hatches,
-  Lantern,
-  MissionCard,
-  StatTile,
-  TokenChip,
-} from '../ui';
+import { Badge, Button, CATEGORIES, Hatches, MissionCard, StatTile, TokenChip } from '../ui';
 import { Sheet } from '../ui';
 import { hatchArt } from '../ui/hatchArt';
 
@@ -32,8 +24,9 @@ function Closing({ week }: { week: OpenWeek }) {
   return <p className="n-closing">{t(key, { d: left.days, h: left.hours, m: left.minutes })}</p>;
 }
 
-function SeasonNote({ week }: { week: Week | undefined }) {
+function SeasonNote({ week, admin }: { week: Week | undefined; admin: boolean }) {
   const t = useT();
+  const { theme } = useTheme();
   const season = useCurrentSeason(week?.state === 'no_active_week');
   if (season.isPending) return <p role="status">{t('app.loading')}</p>;
   const finished = season.data?.status === 'finished';
@@ -41,6 +34,21 @@ function SeasonNote({ week }: { week: Week | undefined }) {
     <section className="n-note" aria-labelledby="no-week">
       <h2 id="no-week">{t(finished ? 'home.over.title' : 'home.none.title')}</h2>
       <p>{t(finished ? 'home.over.lead' : 'home.none.lead')}</p>
+      {admin && !finished ? (
+        <>
+          <p>{t('home.none.admin')}</p>
+          <Link
+            to="/kontor/sesong"
+            className="n-btn n-btn--dark"
+            style={{ textDecoration: 'none' }}
+          >
+            {t('home.none.admin.link')}
+          </Link>
+        </>
+      ) : null}
+      <div className="n-note__art">
+        <StoryPainting file={theme === 'laaven' ? 'R-10-keeping-watch' : 'L-12-hayloft-feast'} />
+      </div>
     </section>
   );
 }
@@ -96,7 +104,6 @@ export function HomePage() {
     <main className="n-home">
       <header className="n-home__head">
         <h1>{t('home.welcome', { name: me.name })}</h1>
-        <p className="n-home__where">{me.workplaceName}</p>
       </header>
 
       {week.isPending ? <p role="status">{t('app.loading')}</p> : null}
@@ -113,7 +120,9 @@ export function HomePage() {
           </Button>
         </div>
       ) : null}
-      {week.data?.state === 'no_active_week' ? <SeasonNote week={week.data} /> : null}
+      {week.data?.state === 'no_active_week' ? (
+        <SeasonNote week={week.data} admin={me.role === 'admin'} />
+      ) : null}
 
       {openWeek ? (
         <div className="n-home__grid">
@@ -166,20 +175,19 @@ export function HomePage() {
                       onReroll={() => {
                         actions.reroll(slot.assignmentId, slot.slot);
                       }}
+                      onUndo={
+                        undoable
+                          ? () => {
+                              actions.undoComplete(slot.assignmentId);
+                            }
+                          : slot.status === 'skipped'
+                            ? () => {
+                                actions.unskip(slot.assignmentId);
+                              }
+                            : undefined
+                      }
+                      undoNote={undoable ? t('home.undo.text', { n: UNDO_MS / 1000 }) : undefined}
                     />
-                    {undoable ? (
-                      <p className="n-undo" role="status">
-                        <span>{t('home.undo.text', { n: UNDO_MS / 1000 })}</span>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            actions.undoComplete(slot.assignmentId);
-                          }}
-                        >
-                          {t('home.undo')}
-                        </Button>
-                      </p>
-                    ) : null}
                   </li>
                 );
               })}
@@ -187,7 +195,6 @@ export function HomePage() {
           </section>
 
           <aside className="n-home__side" aria-label={t('home.side')}>
-            <Lantern done={completedCount(slots)} />
             <Closing week={openWeek} />
             <div className="n-home__tokens">
               <TokenChip kind="skip" left={openWeek.skipLeft ? 1 : 0} />

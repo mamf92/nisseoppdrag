@@ -30,7 +30,9 @@ export function PrivacyPage() {
         </section>
       ))}
       <p>
-        <Link to="/">{t('privacy.back')}</Link>
+        <Link to="/" className="n-btn n-btn--ghost" style={{ textDecoration: 'none' }}>
+          {t('privacy.back')}
+        </Link>
       </p>
     </main>
   );

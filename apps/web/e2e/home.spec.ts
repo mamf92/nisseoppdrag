@@ -82,9 +82,9 @@ test('complete (with undo), skip and the error toast', async ({ page }) => {
 
   // Undo inside the window: nothing is sent.
   await card(1).getByRole('button', { name: 'Fullført!' }).click();
-  await expect(page.getByText('1 av 5 fullført')).toBeVisible();
-  await page.getByRole('button', { name: 'Angre' }).click();
-  await expect(page.getByText('0 av 5 fullført')).toBeVisible();
+  await expect(card(1).getByText('Fullfører om 4 sekunder …')).toBeVisible();
+  await card(1).getByRole('button', { name: 'Angre' }).click();
+  await expect(card(1).getByRole('button', { name: 'Fullført!' })).toBeVisible();
 
   // Left alone, it is sent after four seconds.
   await card(2).getByRole('button', { name: 'Fullført!' }).click();

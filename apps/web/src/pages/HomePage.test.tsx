@@ -48,7 +48,6 @@ describe('HomePage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(5);
     expect(screen.getByText('Hopp over · 1 igjen')).toBeInTheDocument();
     expect(screen.getByText('Rist sekken · 1 igjen')).toBeInTheDocument();
-    expect(screen.getByText('0 av 5 fullført')).toBeInTheDocument();
   });
 
   it('marks a slot the catalog left empty', async () => {
@@ -62,6 +61,30 @@ describe('HomePage', () => {
   it('explains when there is no active season', async () => {
     setup({ rpc: { ensure_my_week: () => ({ data: { state: 'no_active_week' }, error: null }) } });
     expect(await screen.findByText('Ingen sesong i gang')).toBeInTheDocument();
+  });
+
+  it('takes a skipped mission back at any time while the week is open', async () => {
+    const unskip = vi.fn(() => ({ data: { ok: true }, error: null }));
+    const { calls } = setup({
+      rpc: {
+        ensure_my_week: () => ({ data: WEEK, error: null }),
+        skip_assignment: () => ({ data: { ok: true }, error: null }),
+        unskip_assignment: unskip,
+      },
+    });
+    const user = userEvent.setup();
+    await screen.findByRole('heading', { name: 'Oppdrag 1' });
+
+    await user.click(within(card('Oppdrag 3')).getByRole('button', { name: 'Hopp over' }));
+    await user.click(screen.getByRole('button', { name: 'Ja, hopp over' }));
+    expect(screen.getByText('Hopp over · brukt')).toBeInTheDocument();
+
+    await user.click(within(card('Oppdrag 3')).getByRole('button', { name: 'Angre' }));
+    expect(
+      within(card('Oppdrag 3')).getByRole('button', { name: 'Fullført!' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Hopp over · 1 igjen')).toBeInTheDocument();
+    expect(calls.rpc).toHaveBeenCalledWith('unskip_assignment', { p_assignment: 'a3' });
   });
 
   it('offers a retry when the week cannot be loaded', async () => {
@@ -81,9 +104,11 @@ describe('HomePage', () => {
     await screen.findByRole('heading', { name: 'Oppdrag 1' });
 
     await user.click(within(card('Oppdrag 1')).getByRole('button', { name: 'Fullført!' }));
-    expect(screen.getByText('1 av 5 fullført')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Angre' }));
-    expect(screen.getByText('0 av 5 fullført')).toBeInTheDocument();
+    expect(within(card('Oppdrag 1')).getByText('Fullfører om 4 sekunder …')).toBeInTheDocument();
+    await user.click(within(card('Oppdrag 1')).getByRole('button', { name: 'Angre' }));
+    expect(
+      within(card('Oppdrag 1')).getByRole('button', { name: 'Fullført!' }),
+    ).toBeInTheDocument();
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {

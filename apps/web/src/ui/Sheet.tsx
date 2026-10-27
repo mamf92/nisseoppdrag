@@ -9,11 +9,14 @@ export function Sheet({
   open,
   onClose,
   title,
+  wide = false,
   children,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
+  /** Room for two columns from 768 px, for sheets that hold a form next to a preview. */
+  wide?: boolean;
   children: ReactNode;
 }) {
   const t = useT();
@@ -38,7 +41,7 @@ export function Sheet({
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
     <dialog
       ref={ref}
-      className="n-sheet"
+      className={wide ? 'n-sheet n-sheet--wide' : 'n-sheet'}
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(event) => {
