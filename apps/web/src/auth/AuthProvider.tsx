@@ -37,6 +37,8 @@ export interface AuthError {
 
 interface AuthContextValue {
   state: AuthState;
+  /** The database client, for the game screens; null when the app has no Supabase setup. */
+  client: Db | null;
   sendCode: (email: string) => Promise<AuthError | null>;
   verifyCode: (email: string, code: string) => Promise<AuthError | null>;
   signOut: () => Promise<void>;
@@ -131,6 +133,7 @@ export function AuthProvider({
     const missing: AuthError = { message: 'not_configured' };
     return {
       state,
+      client,
       retry: reload,
       async sendCode(email) {
         if (!client) return missing;

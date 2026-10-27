@@ -1,0 +1,311 @@
+/* Page layout for the signed-in screens: shell, home, and the shared page furniture. */
+.n-shell {
+  min-height: 100dvh;
+}
+.n-shell__main {
+  padding-bottom: 96px; /* clears the fixed bottom bar */
+}
+@media (min-width: 768px) {
+  .n-shell__main {
+    margin-left: 188px; /* the rail */
+    padding-bottom: 32px;
+  }
+}
+
+.n-page {
+  display: grid;
+  gap: 20px;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+.n-page h1,
+.n-home__head h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  line-height: 1.1;
+}
+.n-page h2,
+.n-home h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.n-page__lead {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+}
+.n-note {
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line);
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.n-note p {
+  margin: 0;
+}
+.n-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ---------- player home ---------- */
+.n-home {
+  display: grid;
+  gap: 20px;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 20px 16px 8px;
+}
+.n-home__where {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+}
+.n-home__grid {
+  display: grid;
+  gap: 20px;
+}
+.n-home__main {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.n-missions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.n-missions__empty {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+}
+.n-missions__empty p {
+  margin: 0;
+}
+.n-undo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-weight: 650;
+}
+.n-home__side {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.n-home__tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.n-home__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.n-closing {
+  margin: 0;
+  font-weight: 650;
+  color: var(--ink-muted);
+}
+@media (min-width: 1024px) {
+  .n-home__grid {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+  .n-home__side {
+    position: sticky;
+    top: 20px;
+    order: 2;
+  }
+}
+@media (max-width: 1023px) {
+  .n-home__side {
+    order: -1;
+  }
+}
+
+/* ---------- moments (full week, new badge) ---------- */
+.n-moment {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+}
+.n-moment__painting {
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  border-radius: var(--radius);
+}
+.n-moment__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+.n-moment__text p {
+  margin: 0 0 6px;
+}
+
+/* ---------- leaderboard, badges, profile ---------- */
+.n-podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.n-podium li {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 12px 6px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.n-podium li:nth-child(1) {
+  order: 2;
+  padding-block: 20px;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.n-podium li:nth-child(2) {
+  order: 1;
+}
+.n-podium li:nth-child(3) {
+  order: 3;
+}
+.n-podium b {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+}
+.n-lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.n-lb-sticky {
+  position: sticky;
+  bottom: 84px;
+}
+.n-badges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 16px;
+}
+.n-badges li {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.n-badges small {
+  color: var(--ink-muted);
+}
+.n-form {
+  display: grid;
+  gap: 14px;
+  max-width: 28rem;
+}
+.n-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.n-danger {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+/* ---------- Nissefars kontor ---------- */
+.n-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.n-tabs a {
+  display: block;
+  padding: 8px 12px;
+  border-radius: var(--radius-btn);
+  text-decoration: none;
+  font-weight: 650;
+  color: var(--ink-muted);
+}
+.n-tabs a[aria-current='page'] {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.n-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.n-table th,
+.n-table td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.n-table-wrap {
+  overflow-x: auto;
+}
+.n-table--cards td[data-label]::before {
+  content: attr(data-label) ' ';
+}
+.n-select,
+.n-textarea {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-btn);
+  padding: 8px 10px;
+  min-height: 44px;
+  width: 100%;
+}
+.n-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.n-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line);
+  overflow-wrap: anywhere;
+}

@@ -17,7 +17,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'VITE_DEV_UI=true pnpm build && pnpm preview --host 127.0.0.1',
+    // Without Supabase variables the build gets a placeholder URL; the mocked specs answer it.
+    command:
+      'VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-http://127.0.0.1:54321} VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:-placeholder-key} VITE_DEV_UI=true pnpm build && pnpm preview --host 127.0.0.1',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env['CI'],
     timeout: 120_000,
