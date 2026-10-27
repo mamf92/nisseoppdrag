@@ -52,7 +52,7 @@ export function MembersPage() {
   const { t, lang } = useI18n();
   const toast = useToast();
   const errorText = useErrorText();
-  const { state } = useAuth();
+  const { state, retry } = useAuth();
   const myId = state.status === 'member' ? state.me.memberId : '';
   const members = useMembers();
   const invites = useInvites();
@@ -169,6 +169,10 @@ export function MembersPage() {
                                 role: e.target.value === 'admin' ? 'admin' : 'player',
                               },
                               {
+                                // Changing one's own role changes what this page may show.
+                                onSuccess: () => {
+                                  if (m.id === myId) void retry();
+                                },
                                 onError: (err) => {
                                   toast.show(errorText(err), 'error');
                                 },

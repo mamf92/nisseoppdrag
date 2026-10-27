@@ -90,6 +90,7 @@ export function useChallenges() {
       const { data, error } = await client
         .from('challenges')
         .select('*')
+        .eq('workplace_id', wp)
         .order('category')
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -194,6 +195,7 @@ export function useSeasons() {
       const { data, error } = await client
         .from('seasons')
         .select('*')
+        .eq('workplace_id', wp)
         .order('starts_on', { ascending: false });
       if (error) throw error;
       return data.map((s) => ({
@@ -251,6 +253,7 @@ export function useMembers() {
       const { data, error } = await client
         .from('members')
         .select('id, nisse_name, farmer_name, story, role, joined_at')
+        .eq('workplace_id', wp)
         .order('joined_at');
       if (error) throw error;
       return data.map((m) => ({
@@ -287,6 +290,7 @@ export function useInvites() {
       const { data, error } = await client
         .from('invites')
         .select('id, role, expires_at, max_uses, uses')
+        .eq('workplace_id', wp)
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -396,6 +400,7 @@ export function useAuditLog() {
       const { data, error } = await client
         .from('audit_log')
         .select('id, action, target, at')
+        .eq('workplace_id', wp)
         .order('at', { ascending: false })
         .limit(200);
       if (error) throw error;
