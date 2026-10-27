@@ -49,13 +49,6 @@
 .n-note p {
   margin: 0;
 }
-.n-note__art {
-  width: 100%;
-  margin-top: 8px;
-}
-.n-note__art .n-moment__painting {
-  max-width: 36rem;
-}
 .n-actions {
   display: flex;
   flex-wrap: wrap;

@@ -26,7 +26,6 @@ function Closing({ week }: { week: OpenWeek }) {
 
 function SeasonNote({ week, admin }: { week: Week | undefined; admin: boolean }) {
   const t = useT();
-  const { theme } = useTheme();
   const season = useCurrentSeason(week?.state === 'no_active_week');
   if (season.isPending) return <p role="status">{t('app.loading')}</p>;
   const finished = season.data?.status === 'finished';
@@ -46,9 +45,6 @@ function SeasonNote({ week, admin }: { week: Week | undefined; admin: boolean })
           </Link>
         </>
       ) : null}
-      <div className="n-note__art">
-        <StoryPainting file={theme === 'laaven' ? 'R-10-keeping-watch' : 'L-12-hayloft-feast'} />
-      </div>
     </section>
   );
 }
