@@ -74,38 +74,43 @@ function mocks(writes?: { method: string; table: string; body: unknown }[]) {
   };
 }
 
-for (const size of SIZES) {
-  test(`every office page fits and has no axe violations at ${String(size.width)} px`, async ({
-    page,
-  }) => {
-    await page.setViewportSize(size);
-    await signInAs(page, mocks());
-    for (const [path, heading] of [
-      ['/kontor', 'Nissefars kontor'],
-      ['/kontor/oppdrag', 'Nissefars kontor'],
-      ['/kontor/sesong', 'Nissefars kontor'],
-      ['/kontor/nisser', 'Nissefars kontor'],
-      ['/kontor/poeng', 'Nissefars kontor'],
-      ['/kontor/logg', 'Nissefars kontor'],
-    ] as const) {
-      await page.goto(path);
-      await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
-      await expect(page.getByText('Laster …')).toHaveCount(0);
-      await page.evaluate(() => document.fonts.ready);
-      await page.screenshot({
-        path: `screenshots/kontor${path.slice(7).replace('/', '-') || '-oversikt'}-${String(size.width)}.png`,
-        fullPage: true,
-      });
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      expect(overflow, path).toBeLessThanOrEqual(0);
-      const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze();
-      expect(results.violations.map((v) => `${path}: ${v.id}`)).toEqual([]);
-    }
-  });
+for (const story of ['gaarden', 'laaven'] as const) {
+  for (const size of SIZES) {
+    test(`every office page fits and has no axe violations in ${story} at ${String(size.width)} px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      await page.addInitScript((value) => {
+        window.localStorage.setItem('nisse-theme', value);
+      }, story);
+      await signInAs(page, mocks());
+      for (const [path, heading] of [
+        ['/kontor', 'Nissefars kontor'],
+        ['/kontor/oppdrag', 'Nissefars kontor'],
+        ['/kontor/sesong', 'Nissefars kontor'],
+        ['/kontor/nisser', 'Nissefars kontor'],
+        ['/kontor/poeng', 'Nissefars kontor'],
+        ['/kontor/logg', 'Nissefars kontor'],
+      ] as const) {
+        await page.goto(path);
+        await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
+        await expect(page.getByText('Laster …')).toHaveCount(0);
+        await page.evaluate(() => document.fonts.ready);
+        await page.screenshot({
+          path: `screenshots/kontor${path.slice(7).replace('/', '-') || '-oversikt'}-${story}-${String(size.width)}.png`,
+          fullPage: true,
+        });
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        );
+        expect(overflow, path).toBeLessThanOrEqual(0);
+        const results = await new AxeBuilder({ page })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze();
+        expect(results.violations.map((v) => `${path}: ${v.id}`)).toEqual([]);
+      }
+    });
+  }
 }
 
 test('a player who opens the office is sent home', async ({ page }) => {

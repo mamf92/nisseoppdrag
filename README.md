@@ -121,6 +121,31 @@ Other branches and PRs still get their own Vercel Preview, which also uses the s
 
 Vercel settings: Root Directory `apps/web`, framework Vite, other commands left to `apps/web/vercel.json`. Environment variables (public values only): `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, with the prod project on Production and the staging project on Preview. Vite bakes the values into the build, so redeploy after changing them. Until prod is ready, Production may point at the staging project too.
 
+## Launch checklist
+
+Before the first real colleagues are invited. Items marked (Martin) need his accounts or approval.
+
+**Database and functions**
+- [ ] All migrations applied to prod, and the pgTAP suite green on `main`.
+- [ ] Supabase advisors (security and performance) reviewed on prod; the deny-all internal tables and the game RPCs are the only expected notes.
+- [ ] `delete-account` Edge Function deployed (`verify_jwt = false`, it checks the token itself) and tried by hand with a throwaway account.
+- [ ] `pg_cron` jobs enabled; a recent row in `job_runs`, and `platform_health()` reports a tick within the last 2 hours.
+
+**Auth and email**
+- [ ] Custom SMTP (Resend) configured with SPF and DKIM; login email in bokmål arrives within a minute (Martin).
+- [ ] OTP length 6, site URL and redirect URLs set for production and preview domains, rate limits checked.
+
+**App**
+- [ ] Production env vars point at the prod project; security headers confirmed live.
+- [ ] Walk through the game on a phone in both stories: join, five missions, skip, reroll, full week, badges, profile, delete account.
+- [ ] Walk through Nissefars kontor: missions, season dates (Monday to Sunday), invites, roles, point adjustment, audit log.
+- [ ] Keyboard-only pass and a VoiceOver spot check on the player home and the office (axe already runs on every page in both themes).
+
+**Operations**
+- [ ] Daily backups confirmed on the prod plan (Martin approves the cost).
+- [ ] Dependabot alerts and secret scanning enabled; branch protection on `main` and `staging`.
+- [ ] `LICENSE` file added; the illustrations licensed separately.
+
 ## Branch protection
 
 `main` is protected by a GitHub ruleset (apply the same to `staging`): pull request required (0 approvals), status checks `web` and `database`, no force pushes, no deletion. Also enable Dependabot alerts and secret scanning. Consider making the repo private.
