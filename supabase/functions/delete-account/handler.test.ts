@@ -71,3 +71,12 @@ test('only POST deletes; OPTIONS answers the preflight', async () => {
   assert.ok(options.headers.get('access-control-allow-headers')?.includes('authorization'));
   assert.deepEqual(deleted, []);
 });
+
+test('deletes nothing when the admin check itself fails', async () => {
+  const { value, deleted } = deps({
+    isLastAdminOfLiveGroup: () => Promise.reject(new Error('db')),
+  });
+  const response = await handle(post('Bearer good'), value);
+  assert.equal(response.status, 503);
+  assert.deepEqual(deleted, []);
+});

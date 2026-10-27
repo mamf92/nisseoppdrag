@@ -136,7 +136,7 @@ export function HomePage() {
                     </li>
                   );
                 }
-                const undoable = actions.pending.has(slot.assignmentId);
+                const undoable = actions.undoable.has(slot.assignmentId);
                 return (
                   <li key={slot.assignmentId}>
                     <MissionCard

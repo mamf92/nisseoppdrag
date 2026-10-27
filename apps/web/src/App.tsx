@@ -1,7 +1,14 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { RequireMember, RequireSignedIn } from './auth/guards';
+import { RequireAdmin, RequireMember, RequireSignedIn } from './auth/guards';
 import { CreateGamePage } from './pages/CreateGamePage';
+import { AdminLayout } from './admin/AdminLayout';
+import { ChallengesPage } from './admin/ChallengesPage';
+import { LogPage } from './admin/LogPage';
+import { MembersPage } from './admin/MembersPage';
+import { OverviewPage } from './admin/OverviewPage';
+import { PointsPage } from './admin/PointsPage';
+import { SeasonPage } from './admin/SeasonPage';
 import { AppShell } from './layout/AppShell';
 import { BadgesPage } from './pages/BadgesPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
@@ -64,6 +71,21 @@ export function App() {
         <Route path="toppliste" element={<LeaderboardPage />} />
         <Route path="merker" element={<BadgesPage />} />
         <Route path="meg" element={<ProfilePage />} />
+        <Route
+          path="kontor"
+          element={
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          }
+        >
+          <Route index element={<OverviewPage />} />
+          <Route path="oppdrag" element={<ChallengesPage />} />
+          <Route path="sesong" element={<SeasonPage />} />
+          <Route path="nisser" element={<MembersPage />} />
+          <Route path="poeng" element={<PointsPage />} />
+          <Route path="logg" element={<LogPage />} />
+        </Route>
         <Route path="*" element={<HomePage />} />
       </Route>
     </Routes>

@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RequireAdmin, RequireMember } from './guards';
 import { MEMBER_ME, fakeClient } from '../test-auth';
@@ -13,7 +13,10 @@ describe('RequireAdmin', () => {
       </RequireAdmin>,
       { client },
     );
-    expect(await screen.findByText('Du har ikke tilgang til denne siden.')).toBeInTheDocument();
+    // Players are sent back to their home; nothing of the admin page is rendered.
+    await waitFor(() => {
+      expect(screen.queryByText('Laster …')).not.toBeInTheDocument();
+    });
     expect(screen.queryByText('Nissefars kontor')).not.toBeInTheDocument();
   });
 

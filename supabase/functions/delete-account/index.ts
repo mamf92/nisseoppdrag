@@ -22,13 +22,15 @@ Deno.serve((request) =>
         .select('workplace_id, role')
         .eq('user_id', userId)
         .maybeSingle();
+      if (me.error) throw new Error(me.error.message);
       if (!me.data || me.data.role !== 'admin') return false;
       const others = await admin
         .from('members')
         .select('id, role', { count: 'exact' })
         .eq('workplace_id', me.data.workplace_id)
         .neq('user_id', userId);
-      const rows = others.data ?? [];
+      if (others.error) throw new Error(others.error.message);
+      const rows = others.data;
       return rows.length > 0 && !rows.some((row) => row.role === 'admin');
     },
     async deleteUser(userId) {
