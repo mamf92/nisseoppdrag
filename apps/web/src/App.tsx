@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { RequireMember, RequireSignedIn } from './auth/guards';
 import { CreateGamePage } from './pages/CreateGamePage';
+import { AppShell } from './layout/AppShell';
+import { ComingSoon } from './pages/ComingSoon';
 import { HomePage } from './pages/HomePage';
 import { JoinPage } from './pages/JoinPage';
 import { LoginPage } from './pages/LoginPage';
@@ -48,13 +50,18 @@ export function App() {
         }
       />
       <Route
-        path="*"
         element={
           <RequireMember>
-            <HomePage />
+            <AppShell />
           </RequireMember>
         }
-      />
+      >
+        <Route index element={<HomePage />} />
+        <Route path="toppliste" element={<ComingSoon />} />
+        <Route path="merker" element={<ComingSoon />} />
+        <Route path="meg" element={<ComingSoon />} />
+        <Route path="*" element={<HomePage />} />
+      </Route>
     </Routes>
   );
 }

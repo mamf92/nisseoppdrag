@@ -18,6 +18,10 @@ export interface FakeOptions {
   /** What `rpc('taken_names')` returns: the names already in use in the group. */
   taken?: string[];
   takenError?: Failure | null;
+  /** Answers for other RPCs by name; a thrown-away default is `{ data: null, error: null }`. */
+  /** Rows for table reads by table name. */
+  tables?: Record<string, unknown[]>;
+  rpc?: Record<string, (args: unknown) => { data: unknown; error: Failure | null }>;
 }
 
 export const MEMBER_ME = {
@@ -82,7 +86,19 @@ export function fakeClient(options: FakeOptions = {}) {
         if (options.takenError) return Promise.resolve({ data: null, error: options.takenError });
         return Promise.resolve({ data: options.taken ?? [], error: null });
       }
+      const handler = options.rpc?.[name];
+      if (handler) return Promise.resolve(handler(args));
       return Promise.resolve({ data: null, error: null });
+    },
+    // A table read is a chain of select/order/limit/eq ending in an await.
+    from: (table: string) => {
+      const rows = options.tables?.[table] ?? [];
+      const chain: Record<string, unknown> = {
+        then: (resolve: (value: { data: unknown; error: null }) => unknown) =>
+          resolve({ data: rows, error: null }),
+      };
+      for (const method of ['select', 'order', 'limit', 'eq']) chain[method] = () => chain;
+      return chain;
     },
   };
   const recover = () => {
