@@ -77,6 +77,16 @@
   --badge-shadow: drop-shadow(0 3px 5px rgb(22 35 61 / 0.25));
   --nav-bg: var(--surface);
   --nav-rail-bg: var(--bg-2);
+  /* carved and painted decoration */
+  --medal-rim: #7a4f2c;
+  --medal-bead: #c9973a;
+  --on-medal: #fff8ec;
+  --avatar-bg: #e9e0cf;
+  --carving: #b8862b;
+  --rose-flower: #b5222b;
+  --rose-leaf: #4d6b2e;
+  --rose-line: #fff8ec;
+  --rose-dot: #b8862b;
   color-scheme: light;
 }
 
@@ -129,6 +139,16 @@
   --badge-shadow: drop-shadow(0 4px 6px rgb(0 0 0 / 0.35));
   --nav-bg: #2a1e15;
   --nav-rail-bg: #2a1e15;
+  /* carved and painted decoration */
+  --medal-rim: #6b4426;
+  --medal-bead: #f4b740;
+  --on-medal: #fff6ea;
+  --avatar-bg: #1f2940;
+  --carving: #f4b740;
+  --rose-flower: #c2382b;
+  --rose-leaf: #a9bc6e;
+  --rose-line: #fff6ea;
+  --rose-dot: #f4b740;
   color-scheme: dark;
 }
 
@@ -144,6 +164,28 @@
   body {
     min-height: 100vh;
     background: var(--bg);
+  }
+  /* Låven: a clear winter night, sparse stars fading towards the bottom of the page. */
+  [data-nisse-theme='laaven'] body {
+    background-image:
+      radial-gradient(1px 1px at 12% 8%, rgb(255 246 234 / 0.7), transparent 60%),
+      radial-gradient(1px 1px at 34% 3%, rgb(255 246 234 / 0.5), transparent 60%),
+      radial-gradient(1.5px 1.5px at 58% 11%, rgb(255 246 234 / 0.8), transparent 60%),
+      radial-gradient(1px 1px at 77% 5%, rgb(255 246 234 / 0.6), transparent 60%),
+      radial-gradient(1px 1px at 91% 14%, rgb(255 246 234 / 0.5), transparent 60%),
+      radial-gradient(1px 1px at 46% 19%, rgb(255 246 234 / 0.35), transparent 60%),
+      radial-gradient(1px 1px at 22% 24%, rgb(255 246 234 / 0.3), transparent 60%),
+      linear-gradient(180deg, #1f2940 0, #161d2b 520px);
+    background-size:
+      100% 520px,
+      100% 520px,
+      100% 520px,
+      100% 520px,
+      100% 520px,
+      100% 520px,
+      100% 520px,
+      100% 100%;
+    background-repeat: no-repeat;
   }
   [data-nisse-theme='gaarden'] body,
   :root:not([data-nisse-theme]) body {
