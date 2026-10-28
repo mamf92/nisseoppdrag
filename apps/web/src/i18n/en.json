@@ -144,6 +144,8 @@
   "home.stat.rank": "Rank",
   "home.none.title": "No season running",
   "home.none.lead": "Nissefar has not started a season yet. Come back soon!",
+  "home.none.admin": "Are you Nissefar? Set a season to active under Season in the office and the missions will arrive.",
+  "home.none.admin.link": "Go to Season",
   "home.over.title": "The season is over",
   "home.over.lead": "Thanks for playing! See how it went on the leaderboard and under Badges.",
   "mission.gift.laaven": "Brings {item} for the porridge",

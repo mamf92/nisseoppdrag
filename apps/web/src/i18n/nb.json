@@ -144,6 +144,8 @@
   "home.stat.rank": "Plass",
   "home.none.title": "Ingen sesong i gang",
   "home.none.lead": "Nissefar har ikke startet en sesong ennå. Kom tilbake snart!",
+  "home.none.admin": "Er du nissefar? Sett en sesong til aktiv under Sesong i kontoret, så kommer oppdragene.",
+  "home.none.admin.link": "Gå til Sesong",
   "home.over.title": "Sesongen er over",
   "home.over.lead": "Takk for innsatsen! Se hvordan det gikk på topplisten og under Merker.",
   "mission.gift.laaven": "Gir {item} til julegrøten",

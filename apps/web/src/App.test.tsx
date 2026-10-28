@@ -32,7 +32,7 @@ describe('routing and guards', () => {
     const { client } = fakeClient({ session: true, me: MEMBER_ME });
     renderWithProviders(<App />, { client });
     expect(await screen.findByText('Hei, Grøtnissen!')).toBeInTheDocument();
-    expect(screen.getByText('Firma AS')).toBeInTheDocument();
+    expect(screen.queryByText('Firma AS')).not.toBeInTheDocument();
   });
 
   it('sends a signed-in user without a workplace to onboarding', async () => {

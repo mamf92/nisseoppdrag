@@ -151,6 +151,38 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     onSuccess: refreshScores,
   });
 
+  // Taking a skip back is optimistic too; the database refuses it once the week has closed.
+  const unskip = useMutation({
+    mutationFn: async (assignmentId: string) => {
+      if (!client) throw new Error('not_configured');
+      const { error } = await client.rpc('unskip_assignment', { p_assignment: assignmentId });
+      if (error) throw error;
+    },
+    onMutate: async (assignmentId) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      patch((week) => ({
+        ...week,
+        skipLeft: true,
+        slots: week.slots.map((slot) =>
+          slot.assignmentId === assignmentId ? { ...slot, status: 'open' } : slot,
+        ),
+      }));
+    },
+    onError: (error, assignmentId) => {
+      patch((week) => ({
+        ...week,
+        skipLeft: false,
+        slots: week.slots.map((slot) =>
+          slot.assignmentId === assignmentId && slot.status === 'open'
+            ? { ...slot, status: 'skipped' }
+            : slot,
+        ),
+      }));
+      fail(error);
+      void queryClient.invalidateQueries({ queryKey: key });
+    },
+  });
+
   const reroll = useMutation({
     mutationFn: async ({ assignmentId }: { assignmentId: string; slot: number }) => {
       if (!client) throw new Error('not_configured');
@@ -231,10 +263,11 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     undoable,
     /** The slot whose card should shake once, after a reroll. */
     shaken,
-    busy: skip.isPending || reroll.isPending,
+    busy: skip.isPending || unskip.isPending || reroll.isPending,
     startComplete,
     undoComplete,
     skip: skip.mutate,
+    unskip: unskip.mutate,
     reroll: (assignmentId: string, slot: number) => {
       reroll.mutate({ assignmentId, slot });
     },

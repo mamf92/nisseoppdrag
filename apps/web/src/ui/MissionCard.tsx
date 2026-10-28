@@ -26,6 +26,12 @@ export interface MissionCardProps {
   onComplete?: () => void;
   onSkip?: () => void;
   onReroll?: () => void;
+  /** Takes the mission back: shown under a done or skipped stamp while the week is open. */
+  onUndo?: () => void;
+  /** Says why the undo is there, for example the seconds left before a completion is sent. */
+  undoNote?: string;
+  /** Holds the undo back, for example while the request it would take back is still in flight. */
+  undoDisabled?: boolean;
 }
 
 export function MissionCard({
@@ -43,6 +49,9 @@ export function MissionCard({
   onComplete,
   onSkip,
   onReroll,
+  onUndo,
+  undoNote,
+  undoDisabled,
 }: MissionCardProps) {
   const t = useT();
   const titleId = useId();
@@ -88,7 +97,17 @@ export function MissionCard({
           </Button>
         </div>
       ) : (
-        <p className="n-stamp">{status === 'done' ? t('mission.done') : t('mission.skipped')}</p>
+        <div className="n-m-stamped">
+          <p className="n-stamp">{status === 'done' ? t('mission.done') : t('mission.skipped')}</p>
+          {onUndo ? (
+            <p className="n-undo" role="status">
+              {undoNote ? <span>{undoNote}</span> : null}
+              <Button variant="ghost" disabled={undoDisabled} onClick={onUndo}>
+                {t('home.undo')}
+              </Button>
+            </p>
+          ) : null}
+        </div>
       )}
     </article>
   );

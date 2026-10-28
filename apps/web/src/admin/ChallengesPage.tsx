@@ -183,6 +183,7 @@ export function ChallengesPage() {
       <Sheet
         open={editing !== null}
         onClose={close}
+        wide
         title={t(editing === 'new' ? 'admin.missions.new' : 'admin.missions.edit')}
       >
         {editing ? (

@@ -39,7 +39,7 @@ begin
   set local role anon;
 end $$;
 
-select plan(26);
+select plan(31);
 
 -- ---------- join through an invite ----------
 reset role;
@@ -82,6 +82,13 @@ select is((select count(*)::int from public.points_ledger where reason = 'challe
 select lives_ok(format('select skip_assignment(%L)', :'a2'), 'skip works once');
 select throws_ok(format('select skip_assignment(%L)', :'a4'), 'P0001', 'skip_used', 'a second skip is refused');
 select is((ensure_my_week() ->> 'skip_left')::boolean, false, 'skip_left turns false');
+
+-- ---------- taking a skip back ----------
+select throws_ok(format('select unskip_assignment(%L)', :'a4'), 'P0001', 'not_skipped', 'only a skipped slot can be taken back');
+select lives_ok(format('select unskip_assignment(%L)', :'a2'), 'a skipped slot can be taken back');
+select is((select status::text from public.assignments where id = :'a2'::uuid), 'open', 'the slot is open again');
+select is((ensure_my_week() ->> 'skip_left')::boolean, true, 'skip_left turns true again');
+select lives_ok(format('select skip_assignment(%L)', :'a2'), 'the same slot can be skipped again');
 
 -- ---------- reroll: one per week, same category ----------
 select reroll_assignment(:'a3'::uuid) ->> 'assignment_id' as a3new \gset

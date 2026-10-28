@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTheme } from '../themes/ThemeProvider';
 import { prefersReducedMotion } from './motion';
 
@@ -8,6 +8,22 @@ const DURATION_MS = 9000;
 /** Lets it snow over the app for a few seconds. Does nothing with reduced motion. */
 export function letItSnow() {
   window.dispatchEvent(new Event(EVENT));
+}
+
+const SNOW_TAPS = 3;
+const TAP_WINDOW_MS = 1200;
+
+/** A tap handler that calls letItSnow() on the third quick tap. */
+export function useSnowTaps() {
+  const taps = useRef<number[]>([]);
+  return useCallback(() => {
+    const now = Date.now();
+    taps.current = [...taps.current.filter((at) => now - at < TAP_WINDOW_MS), now];
+    if (taps.current.length >= SNOW_TAPS) {
+      taps.current = [];
+      letItSnow();
+    }
+  }, []);
 }
 
 interface Flake {

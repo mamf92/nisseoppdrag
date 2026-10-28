@@ -85,10 +85,6 @@
   margin: 0 auto;
   padding: 20px 16px 8px;
 }
-.n-home__where {
-  margin: 4px 0 0;
-  color: var(--ink-muted);
-}
 .n-home__grid {
   display: grid;
   gap: 20px;
@@ -113,6 +109,11 @@
 }
 .n-missions__empty p {
   margin: 0;
+}
+.n-m-stamped {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
 }
 .n-undo {
   display: flex;
@@ -252,6 +253,7 @@
 }
 .n-form {
   display: grid;
+  align-content: start;
   gap: 14px;
   max-width: 28rem;
 }
@@ -314,6 +316,18 @@
   padding: 8px 10px;
   min-height: 44px;
   width: 100%;
+}
+.n-select {
+  appearance: none;
+  padding-right: 36px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
 }
 .n-stats {
   display: grid;
