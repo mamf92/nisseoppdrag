@@ -8,6 +8,7 @@ import { UNDO_MS, useWeekActions, useWeekQuery } from '../game/useWeek';
 import { countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
 import type { Slot, Week } from '../game/week';
 import { HomePainting } from '../home/HomePainting';
+import { useSnowTaps } from '../fun';
 import { Moment, StoryPainting } from '../home/Moment';
 import { useNow } from '../home/useNow';
 import { Badge, Button, CATEGORIES, Hatches, MissionCard, StatTile, TokenChip } from '../ui';
@@ -57,6 +58,7 @@ export function HomePage() {
   const { lang } = useI18n();
   const { theme } = useTheme();
   const { state } = useAuth();
+  const snowTap = useSnowTaps();
   const week = useWeekQuery();
   const board = useLeaderboard('season');
   const badges = useBadges();
@@ -102,7 +104,9 @@ export function HomePage() {
   return (
     <main className="n-home">
       <header className="n-home__head">
-        <h1>{t('home.welcome', { name: me.name })}</h1>
+        {/* A hidden delight: three quick taps on the greeting let it snow. */}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
+        <h1 onClick={snowTap}>{t('home.welcome', { name: me.name })}</h1>
       </header>
 
       {week.isPending ? <p role="status">{t('app.loading')}</p> : null}

@@ -105,7 +105,7 @@ const WEEK = {
 };
 
 for (const story of ['gaarden', 'laaven'] as const) {
-  test(`three quick taps on the lantern let it snow in ${story}`, async ({ page }) => {
+  test(`three quick taps on the greeting let it snow in ${story}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.addInitScript((value) => {
       window.localStorage.setItem('nisse-theme', value);
@@ -115,12 +115,12 @@ for (const story of ['gaarden', 'laaven'] as const) {
       rpc: { ensure_my_week: () => ({ body: WEEK }) },
     });
     await page.goto('/');
-    const lantern = page.getByRole('img', { name: '2 av 5 fullført' });
-    await expect(lantern).toBeVisible();
+    const greeting = page.getByRole('heading', { level: 1 });
+    await expect(greeting).toBeVisible();
     // A hatch reacts to a tap without becoming a control.
     await page.getByRole('listitem', { name: /Luke 1/ }).click();
     await expect(page.locator('.n-snow')).toHaveCount(0);
-    for (let i = 0; i < 3; i++) await lantern.click();
+    for (let i = 0; i < 3; i++) await greeting.click();
     await expect(page.locator('.n-snow')).toBeVisible();
     await page.waitForTimeout(2500);
     await page.screenshot({ path: `screenshots/snow-${story}.png` });
@@ -131,8 +131,8 @@ test('no snow with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await signInAs(page, { me: MEMBER, rpc: { ensure_my_week: () => ({ body: WEEK }) } });
   await page.goto('/');
-  const lantern = page.getByRole('img', { name: '2 av 5 fullført' });
-  for (let i = 0; i < 3; i++) await lantern.click();
+  const greeting = page.getByRole('heading', { level: 1 });
+  for (let i = 0; i < 3; i++) await greeting.click();
   await page.waitForTimeout(300);
   await expect(page.locator('.n-snow')).toHaveCount(0);
 });
