@@ -7,6 +7,7 @@ import { useCurrentSeason, useLeaderboard, useBadges, badgeFile } from '../game/
 import { UNDO_MS, useWeekActions, useWeekQuery } from '../game/useWeek';
 import { countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
 import type { Slot, Week } from '../game/week';
+import { HomePainting } from '../home/HomePainting';
 import { Moment, StoryPainting } from '../home/Moment';
 import { useNow } from '../home/useNow';
 import { Badge, Button, CATEGORIES, Hatches, MissionCard, StatTile, TokenChip } from '../ui';
@@ -26,11 +27,13 @@ function Closing({ week }: { week: OpenWeek }) {
 
 function SeasonNote({ week, admin }: { week: Week | undefined; admin: boolean }) {
   const t = useT();
+  const { theme } = useTheme();
   const season = useCurrentSeason(week?.state === 'no_active_week');
   if (season.isPending) return <p role="status">{t('app.loading')}</p>;
   const finished = season.data?.status === 'finished';
   return (
-    <section className="n-note" aria-labelledby="no-week">
+    <section className="n-note n-note--painted" aria-labelledby="no-week">
+      <HomePainting theme={theme} finished={finished} />
       <h2 id="no-week">{t(finished ? 'home.over.title' : 'home.none.title')}</h2>
       <p>{t(finished ? 'home.over.lead' : 'home.none.lead')}</p>
       {admin && !finished ? (

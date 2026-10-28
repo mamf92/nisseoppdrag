@@ -1,11 +1,28 @@
+import { useRef, useState } from 'react';
+import { BadgeViewer, useBoop } from '../fun';
+import type { ViewedBadge } from '../fun';
 import { badgeFile, useBadges } from '../game/queries';
 import { useI18n, useT } from '../i18n/I18nProvider';
 import { Badge, Button } from '../ui';
+
+// The «?» medallion only wobbles when tapped: there is nothing to see yet.
+function SecretBadge() {
+  const t = useT();
+  const ref = useRef<HTMLLIElement>(null);
+  useBoop(ref, 'n-rattle');
+  return (
+    <li ref={ref}>
+      <Badge file="" name="" state="secret" />
+      <small>{t('badges.secret.hint')}</small>
+    </li>
+  );
+}
 
 export function BadgesPage() {
   const t = useT();
   const { lang } = useI18n();
   const badges = useBadges();
+  const [viewed, setViewed] = useState<{ badge: ViewedBadge; origin: HTMLElement } | null>(null);
   const list = badges.data ?? [];
   const unlocked = list.filter((b) => b.unlockedAt !== null).length;
 
@@ -45,18 +62,35 @@ export function BadgesPage() {
                   file={badgeFile(badge.code)}
                   name={name}
                   state={isUnlocked ? 'unlocked' : 'locked'}
+                  onOpen={(origin) => {
+                    setViewed({
+                      origin,
+                      badge: {
+                        file: badgeFile(badge.code),
+                        name,
+                        how,
+                        bonusPoints: badge.bonusPoints,
+                        unlockedAt: badge.unlockedAt,
+                      },
+                    });
+                  }}
                 />
                 <small>{how}</small>
               </li>
             );
           })}
           {/* Secret badges are hidden by the database until they are unlocked. */}
-          <li>
-            <Badge file="" name="" state="secret" />
-            <small>{t('badges.secret.hint')}</small>
-          </li>
+          <SecretBadge />
         </ul>
       ) : null}
+
+      <BadgeViewer
+        badge={viewed?.badge ?? null}
+        origin={viewed?.origin ?? null}
+        onClose={() => {
+          setViewed(null);
+        }}
+      />
     </main>
   );
 }

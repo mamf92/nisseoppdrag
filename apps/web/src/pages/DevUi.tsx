@@ -7,6 +7,8 @@ import {
   Badge,
   Button,
   CATEGORIES,
+  CarvedBand,
+  CarvedRosette,
   CategoryTile,
   Chip,
   Hatches,
@@ -16,7 +18,9 @@ import {
   LeaderboardRow,
   MissionCard,
   NisseAvatar,
+  RosemalingCorner,
   RosemalingDivider,
+  RosemalingSprig,
   Sheet,
   StatTile,
   ThemeSwitch,
@@ -233,6 +237,19 @@ function ThemeFrame({ theme }: { theme: Theme }) {
         <div className="relative grid min-h-24 place-items-center rounded-card bg-surface p-6 shadow-[inset_0_0_0_1px_var(--line)]">
           <TulipCorners />
           <p className="font-display text-xl font-bold">Takk for i år!</p>
+        </div>
+        <div className="relative mt-4 grid min-h-32 place-items-center gap-2 rounded-card bg-surface p-8 shadow-[inset_0_0_0_1px_var(--line)]">
+          <RosemalingCorner corner="top-left" />
+          <RosemalingCorner corner="top-right" />
+          <RosemalingCorner corner="bottom-left" />
+          <RosemalingCorner corner="bottom-right" />
+          <p className="font-display text-xl font-bold">Rosemaling og treskurd</p>
+          <div className="flex items-center gap-3">
+            <RosemalingSprig />
+            <CarvedRosette />
+            <RosemalingSprig />
+          </div>
+          <CarvedBand className="w-48" />
         </div>
       </Block>
 

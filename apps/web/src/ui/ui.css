@@ -130,23 +130,23 @@
 }
 
 /* ---------- category tile ---------- */
+/* A painted medallion in a chip-carved wooden ring (sprite symbols f-ring, f-dots, f-sheen). */
 .n-tile {
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
+  width: 56px;
+  height: 56px;
+  display: block;
   flex: none;
-  background: var(--c);
-  color: var(--on-cat);
-  border-radius: var(--tile-radius);
-  box-shadow:
-    inset 0 -3px 0 rgb(0 0 0 / var(--tile-inset)),
-    0 0 0 2px var(--tile-ring),
-    0 0 0 3px var(--c);
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.28));
 }
-.n-tile .n-icon {
-  width: 26px;
-  height: 26px;
+.n-tile svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.n-tile__glyph {
+  color: var(--on-medal);
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.45));
 }
 
 /* ---------- mission card ---------- */
@@ -417,7 +417,7 @@
 }
 .n-lb-row {
   display: grid;
-  grid-template-columns: 28px 36px 1fr auto;
+  grid-template-columns: 28px 40px 1fr auto;
   gap: 10px;
   align-items: center;
   padding: 8px 12px;
@@ -437,17 +437,17 @@
   font-weight: 700;
 }
 .n-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--bg-2);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  display: block;
+  flex: none;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.3));
 }
-.n-avatar .n-icon {
+.n-avatar svg {
+  display: block;
   width: 100%;
   height: 100%;
+}
+.n-avatar__disc {
+  fill: var(--avatar-bg);
 }
 .n-stat {
   padding: 10px 12px;
@@ -774,10 +774,54 @@
 .n-divider {
   display: block;
   width: 100%;
-  max-width: 320px;
-  height: 18px;
+  max-width: 360px;
+  height: auto;
+  aspect-ratio: 240 / 32;
   margin-inline: auto;
-  color: var(--accent);
+}
+.n-rose-corner {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+}
+.n-rose-corner--top-left {
+  top: 2px;
+  left: 2px;
+}
+.n-rose-corner--top-right {
+  top: 2px;
+  right: 2px;
+  transform: scaleX(-1);
+}
+.n-rose-corner--bottom-left {
+  bottom: 2px;
+  left: 2px;
+  transform: scaleY(-1);
+}
+.n-rose-corner--bottom-right {
+  right: 2px;
+  bottom: 2px;
+  transform: scale(-1);
+}
+.n-rose-sprig {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+.n-rosette {
+  color: var(--carving);
+}
+/* chip-carved triangles along an edge; the colour follows the theme */
+.n-carved-band {
+  display: block;
+  height: 8px;
+  background: var(--carving);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0h12L6 6.5z'/%3E%3Ccircle cx='0' cy='7.2' r='.8'/%3E%3Ccircle cx='12' cy='7.2' r='.8'/%3E%3C/svg%3E")
+    repeat-x left center / 12px 8px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0h12L6 6.5z'/%3E%3Ccircle cx='0' cy='7.2' r='.8'/%3E%3Ccircle cx='12' cy='7.2' r='.8'/%3E%3C/svg%3E")
+    repeat-x left center / 12px 8px;
+  opacity: 0.7;
 }
 .n-corners {
   position: absolute;
