@@ -122,8 +122,6 @@
   "welcome.create.hint": "Sett opp et spill for arbeidsplassen din og inviter kollegene.",
   "welcome.returning": "Har du spilt før? Logg inn",
   "create.title": "Lag et spill",
-  "create.lead": "Du blir administrator for spillet ditt.",
-  "create.how": "Å sette opp et spill selv er ikke åpent ennå. Foreløpig setter Nissefar opp spillet og gir deg en administratorkode. Har du allerede en kode, kan du bli med nå.",
   "create.haveCode": "Jeg har en kode",
   "onboard.farmer.yours": "Ditt navn",
   "onboard.farmer.change": "Bytt?",
@@ -332,5 +330,16 @@
   "admin.error.hour": "Timen må være et helt tall fra 0 til 23.",
   "admin.error.delta": "Skriv et helt tall fra −100 til 100, ikke 0.",
   "admin.error.note": "Skriv en begrunnelse på opptil 120 tegn.",
-  "admin.error.member": "Velg hvem det gjelder."
+  "admin.error.member": "Velg hvem det gjelder.",
+  "create.game.title": "Hva skal spillet hete?",
+  "create.game.lead": "Du blir administrator for spillet. Etterpå setter du opp første sesong og inviterer kollegene.",
+  "create.game.label": "Navn på spillet",
+  "create.game.hint": "For eksempel arbeidsplassen eller teamet ditt. Alle i spillet ser det.",
+  "create.full.title": "Alle plassene er tatt",
+  "create.full.lead": "Vi har åpnet for 50 spill i starten, og alle er i bruk. Flere plasser åpner senere. Har du en gruppekode, kan du fortsatt bli med i et spill.",
+  "create.limit.title": "Du har laget nok spill",
+  "create.limit.lead": "Hver administrator kan lage opptil 3 spill. Har du en gruppekode, kan du bli med i et annet spill.",
+  "error.capacity_reached": "Alle plassene er tatt akkurat nå. Flere plasser åpner senere.",
+  "error.creator_limit": "Du har allerede laget det høyeste antallet spill.",
+  "error.game_name_length": "Navnet på spillet må være mellom 2 og {max} tegn."
 }

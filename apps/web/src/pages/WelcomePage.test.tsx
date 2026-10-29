@@ -44,11 +44,8 @@ describe('choosing what to do before signing in', () => {
       await screen.findByRole('heading', { name: 'Logg inn for å lage et spill' }),
     ).toBeInTheDocument();
     await signIn(user);
-    expect(await screen.findByRole('heading', { name: 'Lag et spill' })).toBeInTheDocument();
-    // Making a game is not open yet: the page offers joining with a code instead.
-    await user.click(screen.getByRole('button', { name: 'Jeg har en kode' }));
     expect(
-      await screen.findByRole('heading', { name: 'Hvilken gruppe skal du bli med i?' }),
+      await screen.findByRole('heading', { name: 'Hva skal spillet hete?' }),
     ).toBeInTheDocument();
   });
 

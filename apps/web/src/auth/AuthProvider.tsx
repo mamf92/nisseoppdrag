@@ -47,6 +47,10 @@ interface AuthContextValue {
   retry: () => Promise<void>;
   /** Joins a workplace and loads the new membership. */
   redeemInvite: (code: string, story: Story, name: string) => Promise<AuthError | null>;
+  /** Whether this account can make a game now: 'ok', 'full' (all places taken) or 'limit'. */
+  canCreateGame: () => Promise<{ state: 'ok' | 'full' | 'limit' } | { error: AuthError }>;
+  /** Makes a game with the caller as its admin, playing under `name` in `story`. */
+  createWorkplace: (gameName: string, story: Story, name: string) => Promise<AuthError | null>;
   /** The names already in use (lower-cased) in the group behind an invite code. */
   takenNames: (code: string) => Promise<{ names: Set<string> } | { error: AuthError }>;
   /** Deletes the account and everything in it (the Edge Function), then signs out. */
@@ -165,6 +169,23 @@ export function AuthProvider({
           p_code: code,
           p_story: story,
           p_name: name.trim(),
+        });
+        if (error) return error;
+        await reload();
+        return null;
+      },
+      async canCreateGame() {
+        if (!client) return { error: missing };
+        const { data, error } = await client.rpc('can_create_game');
+        if (error) return { error };
+        return { state: data === 'full' || data === 'limit' ? data : 'ok' };
+      },
+      async createWorkplace(gameName, story, name) {
+        if (!client) return missing;
+        const { error } = await client.rpc('create_workplace', {
+          p_game_name: gameName.trim(),
+          p_story: story,
+          p_member_name: name.trim(),
         });
         if (error) return error;
         await reload();

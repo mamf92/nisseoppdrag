@@ -15,6 +15,9 @@ export interface FakeOptions {
   otpError?: Failure | null;
   verifyError?: Failure | null;
   redeemError?: Failure | null;
+  /** What `rpc('can_create_game')` returns; default 'ok'. */
+  canCreate?: 'ok' | 'full' | 'limit';
+  createError?: Failure | null;
   /** What `rpc('taken_names')` returns: the names already in use in the group. */
   taken?: string[];
   takenError?: Failure | null;
@@ -84,6 +87,14 @@ export function fakeClient(options: FakeOptions = {}) {
         if (options.redeemError) return Promise.resolve({ data: null, error: options.redeemError });
         me = MEMBER_ME;
         return Promise.resolve({ data: { workplace_id: 'w1' }, error: null });
+      }
+      if (name === 'can_create_game' && !options.rpc?.['can_create_game']) {
+        return Promise.resolve({ data: options.canCreate ?? 'ok', error: null });
+      }
+      if (name === 'create_workplace') {
+        if (options.createError) return Promise.resolve({ data: null, error: options.createError });
+        me = { ...MEMBER_ME, role: 'admin' };
+        return Promise.resolve({ data: { workplace_id: 'w2' }, error: null });
       }
       if (name === 'taken_names') {
         if (options.takenError) return Promise.resolve({ data: null, error: options.takenError });

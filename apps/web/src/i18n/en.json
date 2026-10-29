@@ -122,8 +122,6 @@
   "welcome.create.hint": "Set up a game for your workplace and invite your colleagues.",
   "welcome.returning": "Played before? Sign in",
   "create.title": "Make a game",
-  "create.lead": "You become the administrator of your game.",
-  "create.how": "Setting up a game yourself is not open yet. For now Nissefar sets the game up and gives you an administrator code. If you already have a code, you can join now.",
   "create.haveCode": "I have a code",
   "onboard.farmer.yours": "Your name",
   "onboard.farmer.change": "Change it?",
@@ -332,5 +330,16 @@
   "admin.error.hour": "The hour must be a whole number from 0 to 23.",
   "admin.error.delta": "Enter a whole number from −100 to 100, not 0.",
   "admin.error.note": "Write a reason of up to 120 characters.",
-  "admin.error.member": "Choose who it is about."
+  "admin.error.member": "Choose who it is about.",
+  "create.game.title": "What should the game be called?",
+  "create.game.lead": "You become the administrator of the game. Afterwards you set up the first season and invite your colleagues.",
+  "create.game.label": "Name of the game",
+  "create.game.hint": "For example your workplace or team. Everyone in the game sees it.",
+  "create.full.title": "All places are taken",
+  "create.full.lead": "We opened for 50 games to begin with, and all of them are in use. More places open later. If you have a group code, you can still join a game.",
+  "create.limit.title": "You have made enough games",
+  "create.limit.lead": "Each administrator can make up to 3 games. If you have a group code, you can join another game.",
+  "error.capacity_reached": "All places are taken right now. More places open later.",
+  "error.creator_limit": "You have already made the most games allowed.",
+  "error.game_name_length": "The name of the game must be between 2 and {max} characters."
 }
