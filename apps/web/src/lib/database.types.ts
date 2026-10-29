@@ -410,6 +410,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      platform_limits: {
+        Row: {
+          max_games_per_creator: number;
+          max_workplaces: number;
+          singleton: boolean;
+        };
+        ComputedFields: never;
+        Insert: {
+          max_games_per_creator?: number;
+          max_workplaces?: number;
+          singleton?: boolean;
+        };
+        Update: {
+          max_games_per_creator?: number;
+          max_workplaces?: number;
+          singleton?: boolean;
+        };
+        Relationships: [];
+      };
       points_ledger: {
         Row: {
           achievement_code: string | null;
@@ -545,6 +564,7 @@ export type Database = {
         Row: {
           allowed_email_domains: string[];
           created_at: string;
+          created_by: string | null;
           id: string;
           name: string;
           slug: string;
@@ -554,6 +574,7 @@ export type Database = {
         Insert: {
           allowed_email_domains?: string[];
           created_at?: string;
+          created_by?: string | null;
           id?: string;
           name: string;
           slug: string;
@@ -562,6 +583,7 @@ export type Database = {
         Update: {
           allowed_email_domains?: string[];
           created_at?: string;
+          created_by?: string | null;
           id?: string;
           name?: string;
           slug?: string;
@@ -599,7 +621,16 @@ export type Database = {
         };
         Returns: string;
       };
+      can_create_game: { Args: Record<PropertyKey, never>; Returns: string };
       complete_assignment: { Args: { p_assignment: string }; Returns: Json };
+      create_workplace: {
+        Args: {
+          p_game_name: string;
+          p_member_name: string;
+          p_story: Database['public']['Enums']['story'];
+        };
+        Returns: Json;
+      };
       ensure_my_week: { Args: Record<PropertyKey, never>; Returns: Json };
       leaderboard: {
         Args: { p_scope?: string };

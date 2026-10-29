@@ -16,22 +16,34 @@ import { Button, TextField } from '../ui';
 import { FarmerNamePicker } from './FarmerNamePicker';
 import { StoryStep } from './StoryStep';
 
-type Step = 'code' | 'story' | 'name';
+type Step = 'game' | 'code' | 'story' | 'name';
 
-export function OnboardingPage() {
+const GAME_NAME_MAX = 60;
+
+// Joining a game with a code, or (mode 'create') making one: the same story and name steps, with
+// a game name in place of the code, and no taken names to avoid in a game that does not exist yet.
+export function OnboardingPage({ mode = 'join' }: { mode?: 'join' | 'create' }) {
   const t = useT();
-  const { redeemInvite, signOut, takenNames } = useAuth();
+  const { redeemInvite, createWorkplace, signOut, takenNames } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [storedCode, setStoredCode] = useState(() => readInvite());
   const [code, setCode] = useState(storedCode ?? '');
   // A code from the invite link skips the first step.
-  const [step, setStep] = useState<Step>(storedCode ? 'story' : 'code');
+  const [step, setStep] = useState<Step>(
+    mode === 'create' ? 'game' : storedCode ? 'story' : 'code',
+  );
+  const [gameName, setGameName] = useState('');
   const [taken, setTaken] = useState<TakenNames>(() => new Set());
   const [name, setName] = useState('');
   const [farmer, setFarmer] = useState<FarmerChoice | null>(null);
   const [nameEdited, setNameEdited] = useState(false);
-  const [errors, setErrors] = useState<{ code?: string; name?: string; form?: string }>({});
+  const [errors, setErrors] = useState<{
+    code?: string;
+    game?: string;
+    name?: string;
+    form?: string;
+  }>({});
   const [busy, setBusy] = useState(false);
 
   function chooseStory(story: Theme) {
@@ -41,18 +53,21 @@ export function OnboardingPage() {
   // Looks up which names are free in the group, then suggests one. If the code is refused the
   // lookup says so, and the player is sent back to the code step.
   async function refreshNames(): Promise<boolean> {
-    setBusy(true);
-    const result = await takenNames(code);
-    setBusy(false);
     let names = new Set<string>();
-    if ('error' in result) {
-      const key = errorKey(result.error);
-      if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
-        backToCode(t(key));
-        return false;
-      }
-      // Anything else: carry on with an empty list. The database refuses a taken name anyway.
-    } else names = result.names;
+    // A game that is being made has no names in use yet.
+    if (mode === 'join') {
+      setBusy(true);
+      const result = await takenNames(code);
+      setBusy(false);
+      if ('error' in result) {
+        const key = errorKey(result.error);
+        if (key === 'error.invite_invalid' || key === 'error.domain_not_allowed') {
+          backToCode(t(key));
+          return false;
+        }
+        // Anything else: carry on with an empty list. The database refuses a taken name anyway.
+      } else names = result.names;
+    }
     setTaken(names);
     setFarmer((current) => (current ? settle(current, names) : randomFarmer(names)));
     setName((current) =>
@@ -84,6 +99,17 @@ export function OnboardingPage() {
     setStep('story');
   }
 
+  function nextFromGame(event: FormEvent) {
+    event.preventDefault();
+    const trimmed = gameName.trim();
+    if (trimmed.length < 2 || trimmed.length > GAME_NAME_MAX) {
+      setErrors({ game: t('error.game_name_length', { max: GAME_NAME_MAX }) });
+      return;
+    }
+    setErrors({});
+    setStep('story');
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     const chosen = theme === 'laaven' && farmer ? farmerName(farmer) : name;
@@ -97,12 +123,16 @@ export function OnboardingPage() {
     }
     setErrors({});
     setBusy(true);
-    const failure = await redeemInvite(code, theme, chosen);
+    const failure =
+      mode === 'create'
+        ? await createWorkplace(gameName, theme, chosen)
+        : await redeemInvite(code, theme, chosen);
     setBusy(false);
     if (!failure) {
       clearInvite();
       clearIntent();
-      void navigate('/', { replace: true });
+      // A new admin goes to the office to set up the first season.
+      void navigate(mode === 'create' ? '/kontor' : '/', { replace: true });
       return;
     }
     const key = errorKey(failure);
@@ -126,6 +156,28 @@ export function OnboardingPage() {
       {t('auth.signout')}
     </Button>
   );
+
+  if (step === 'game') {
+    return (
+      <AuthLayout title={t('create.game.title')} lead={t('create.game.lead')}>
+        <form className="grid gap-4" onSubmit={nextFromGame} noValidate>
+          <TextField
+            label={t('create.game.label')}
+            hint={t('create.game.hint')}
+            maxLength={GAME_NAME_MAX}
+            autoComplete="off"
+            value={gameName}
+            error={errors.game}
+            onChange={(e) => {
+              setGameName(e.target.value);
+            }}
+          />
+          <Button type="submit">{t('onboard.next')}</Button>
+          {signOutButton}
+        </form>
+      </AuthLayout>
+    );
+  }
 
   if (step === 'code') {
     return (
@@ -155,7 +207,7 @@ export function OnboardingPage() {
         onChange={chooseStory}
         onNext={() => void toNameStep()}
         onBack={() => {
-          setStep('code');
+          setStep(mode === 'create' ? 'game' : 'code');
         }}
       />
     );

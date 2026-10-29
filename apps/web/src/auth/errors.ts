@@ -7,6 +7,8 @@ const CODES: Record<string, MessageKey> = {
   name_taken: 'error.name_taken',
   already_member: 'error.already_member',
   not_signed_in: 'error.not_signed_in',
+  capacity_reached: 'error.capacity_reached',
+  creator_limit: 'error.creator_limit',
   invalid_input: 'error.generic',
   not_configured: 'error.not_configured',
 };
