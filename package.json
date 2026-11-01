@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "prettier": "^3.9.10",
-    "supabase": "^2.121.0"
+    "supabase": "^2.122.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
