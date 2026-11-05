@@ -13,6 +13,7 @@ export default tseslint.config(
       'test-results',
       'public',
       'src/lib/database.types.ts',
+      'scripts/pwa/*.mjs',
     ],
   },
   js.configs.recommended,

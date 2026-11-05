@@ -5,6 +5,7 @@ import { useI18n, useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import { useCurrentSeason, useLeaderboard, useBadges, badgeFile } from '../game/queries';
 import { UNDO_MS, useWeekActions, useWeekQuery } from '../game/useWeek';
+import { useAppBadge } from '../pwa/badge';
 import { countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
 import type { Slot, Week } from '../game/week';
 import { HomePainting } from '../home/HomePainting';
@@ -93,6 +94,15 @@ export function HomePage() {
     }
     wasFull.current = full;
   }, [full, week.data, fullWeekShown]);
+
+  // The app icon shows how many of this week's missions are still open (installed app only).
+  useAppBadge(
+    week.data === undefined
+      ? null
+      : week.data.state === 'open'
+        ? slots.filter((slot) => slot.status === 'open').length
+        : 0,
+  );
 
   if (state.status !== 'member') return null;
   const { me } = state;

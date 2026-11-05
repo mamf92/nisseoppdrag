@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { PWA_ENABLED } from './pwa/flag';
 import { Route, Routes } from 'react-router-dom';
 import { RequireAdmin, RequireMember, RequireSignedIn } from './auth/guards';
 import { CreateGamePage } from './pages/CreateGamePage';
@@ -27,7 +28,25 @@ const DevUi =
     ? lazy(() => import('./pages/DevUi').then((m) => ({ default: m.DevUi })))
     : null;
 
+// The experimental PWA (install guide, notifications, update bar) is its own chunk and only
+// exists in builds with the PWA flag on.
+const PwaRoot = PWA_ENABLED ? lazy(() => import('./pwa/PwaRoot')) : null;
+const InstallPage = PWA_ENABLED ? lazy(() => import('./pwa/InstallPage')) : null;
+
 export function App() {
+  return (
+    <>
+      <AppRoutes />
+      {PwaRoot ? (
+        <Suspense fallback={null}>
+          <PwaRoot />
+        </Suspense>
+      ) : null}
+    </>
+  );
+}
+
+function AppRoutes() {
   return (
     <Routes>
       {DevUi ? (
@@ -42,6 +61,16 @@ export function App() {
       ) : null}
       <Route path="/velkommen" element={<WelcomePage />} />
       <Route path="/personvern" element={<PrivacyPage />} />
+      {InstallPage ? (
+        <Route
+          path="/installer"
+          element={
+            <Suspense fallback={null}>
+              <InstallPage />
+            </Suspense>
+          }
+        />
+      ) : null}
       <Route path="/logg-inn" element={<LoginPage />} />
       <Route path="/bli-med/:code" element={<JoinPage />} />
       <Route

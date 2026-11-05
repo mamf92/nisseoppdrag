@@ -9,7 +9,8 @@ export default defineConfig({
   forbidOnly: !!process.env['CI'],
   retries: 0,
   reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : 'list',
-  use: { baseURL: 'http://127.0.0.1:4173' },
+  // A service worker would hide requests from page.route(); pwa.spec.ts turns it back on.
+  use: { baseURL: 'http://127.0.0.1:4173', serviceWorkers: 'block' },
   projects: [
     {
       name: 'chromium',
