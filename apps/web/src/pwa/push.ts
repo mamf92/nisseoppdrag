@@ -95,7 +95,9 @@ export async function enablePush(client: Db, lang: Language): Promise<PushStatus
   const permission = await Notification.requestPermission();
   if (permission === 'denied') return 'denied';
   if (permission !== 'granted') return 'off';
-  const reg = await navigator.serviceWorker.ready;
+  // `ready` would wait forever where no worker is registered (e.g. `pnpm dev`), so ask instead.
+  const reg = await registration();
+  if (!reg) throw new Error('no_service_worker');
   const subscription =
     (await reg.pushManager.getSubscription()) ??
     (await reg.pushManager.subscribe({
