@@ -58,7 +58,8 @@ select is(
     'public.admin_adjust_points', 'public.admin_create_invite', 'public.admin_remove_member',
     'public.admin_set_role', 'public.admin_stats', 'public.admin_upsert_season',
     'public.can_create_game', 'public.complete_assignment', 'public.create_workplace', 'public.ensure_my_week', 'public.leaderboard', 'public.me',
-    'public.platform_create_workplace', 'public.platform_health', 'public.redeem_invite',
+    'public.platform_create_workplace', 'public.platform_health',
+    'public.push_subscribe', 'public.push_unsubscribe', 'public.push_update', 'public.redeem_invite',
     'public.reroll_assignment', 'public.skip_assignment', 'public.taken_names', 'public.unskip_assignment',
     'public.update_profile'],
   'authenticated can execute exactly the allowed functions');
