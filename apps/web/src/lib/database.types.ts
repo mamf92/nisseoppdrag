@@ -491,6 +491,55 @@ export type Database = {
           },
         ];
       };
+      push_subscriptions: {
+        Row: {
+          auth: string;
+          created_at: string;
+          endpoint: string;
+          id: string;
+          lang: string;
+          new_week: boolean;
+          new_week_for: string | null;
+          origin: string;
+          p256dh: string;
+          reminder: boolean;
+          reminder_for: string | null;
+          tested_at: string | null;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          auth: string;
+          created_at?: string;
+          endpoint: string;
+          id?: string;
+          lang?: string;
+          new_week?: boolean;
+          new_week_for?: string | null;
+          origin: string;
+          p256dh: string;
+          reminder?: boolean;
+          reminder_for?: string | null;
+          tested_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          auth?: string;
+          created_at?: string;
+          endpoint?: string;
+          id?: string;
+          lang?: string;
+          new_week?: boolean;
+          new_week_for?: string | null;
+          origin?: string;
+          p256dh?: string;
+          reminder?: boolean;
+          reminder_for?: string | null;
+          tested_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       seasons: {
         Row: {
           created_at: string;
@@ -647,6 +696,51 @@ export type Database = {
         Returns: string;
       };
       platform_health: { Args: Record<PropertyKey, never>; Returns: string };
+      push_claim_due: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          auth: string;
+          endpoint: string;
+          kind: string;
+          lang: string;
+          open_count: number;
+          origin: string;
+          p256dh: string;
+          story: Database['public']['Enums']['story'];
+        }[];
+      };
+      push_claim_test: {
+        Args: { p_user: string };
+        Returns: {
+          auth: string;
+          endpoint: string;
+          kind: string;
+          lang: string;
+          open_count: number;
+          origin: string;
+          p256dh: string;
+          story: Database['public']['Enums']['story'];
+        }[];
+      };
+      push_forget: { Args: { p_endpoints: string[] }; Returns: number };
+      push_server_config: { Args: { p_vapid?: Json }; Returns: Json };
+      push_subscribe: {
+        Args: {
+          p_auth: string;
+          p_endpoint: string;
+          p_lang?: string;
+          p_new_week?: boolean;
+          p_origin: string;
+          p_p256dh: string;
+          p_reminder?: boolean;
+        };
+        Returns: string;
+      };
+      push_unsubscribe: { Args: { p_endpoint: string }; Returns: boolean };
+      push_update: {
+        Args: { p_endpoint: string; p_lang: string; p_new_week: boolean; p_reminder: boolean };
+        Returns: boolean;
+      };
       redeem_invite: {
         Args: { p_code: string; p_name: string; p_story: Database['public']['Enums']['story'] };
         Returns: Json;

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useT } from '../i18n/I18nProvider';
 import { cx } from './cx';
+import { PWA_ENABLED } from '../pwa/flag';
 import { Icon } from './Icon';
 import type { IconName } from './Icon';
 import type { MessageKey } from '../i18n/messages';
@@ -31,7 +32,7 @@ export function AppNav({
   return (
     <nav className={cx('n-nav', fixed && 'n-nav--fixed')} aria-label={t('nav.label')}>
       {items.map((item) => (
-        <NavLink key={item.to} to={item.to} end={item.to === '/'}>
+        <NavLink key={item.to} to={item.to} end={item.to === '/'} viewTransition={PWA_ENABLED}>
           <Icon name={item.icon} />
           {t(item.labelKey)}
         </NavLink>

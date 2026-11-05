@@ -7,6 +7,7 @@ const SECTIONS: readonly { id: string; title: MessageKey; body: MessageKey }[] =
   { id: 'stored', title: 'privacy.stored.title', body: 'privacy.stored.body' },
   { id: 'seen', title: 'privacy.seen.title', body: 'privacy.seen.body' },
   { id: 'admin', title: 'privacy.admin.title', body: 'privacy.admin.body' },
+  { id: 'push', title: 'privacy.push.title', body: 'privacy.push.body' },
   { id: 'retention', title: 'privacy.retention.title', body: 'privacy.retention.body' },
   { id: 'delete', title: 'privacy.delete.title', body: 'privacy.delete.body' },
   { id: 'tracking', title: 'privacy.tracking.title', body: 'privacy.tracking.body' },

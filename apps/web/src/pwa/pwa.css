@@ -1,0 +1,347 @@
+/* Experimental PWA: install guide, notification panel, update/offline bar, view transitions. */
+
+.n-guide {
+  display: grid;
+  gap: 14px;
+}
+.n-guide__dots {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.n-guide__dots li {
+  width: 26px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  transition: background 0.2s;
+}
+.n-guide__dots li[aria-current='step'] {
+  background: var(--primary);
+}
+.n-guide__step {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  animation: n-guide-in 0.28s ease both;
+}
+.n-guide__step h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.n-guide__step p {
+  margin: 0;
+}
+.n-guide__count {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+@keyframes n-guide-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+
+/* A bouncing arrow pointing at Safari's toolbar on iPhone. */
+.n-guide__pointer {
+  position: fixed;
+  bottom: max(6px, env(safe-area-inset-bottom));
+  left: 50%;
+  translate: -50% 0;
+  z-index: 10;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+  animation: n-point 1s ease-in-out infinite;
+  pointer-events: none;
+}
+.n-guide__pointer--right {
+  left: auto;
+  right: 18px;
+  translate: none;
+}
+@keyframes n-point {
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* ---------- the little phone mock-ups ---------- */
+.n-phone {
+  width: min(240px, 100%);
+  padding: 8px;
+  border-radius: 26px;
+  background: #11161f;
+  box-shadow:
+    inset 0 0 0 2px #2c3548,
+    0 8px 24px rgb(0 0 0 / 0.25);
+}
+.n-phone__screen {
+  min-height: 120px;
+  border-radius: 19px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f6f1e6, #e9e0cf);
+  color: #16233d;
+  display: grid;
+  align-content: end;
+  font-size: 0.8rem;
+}
+.n-phone--tall .n-phone__screen {
+  min-height: 150px;
+}
+.n-phone__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 8px 10px 12px;
+  background: rgb(255 255 255 / 0.85);
+  border-top: 1px solid rgb(0 0 0 / 0.08);
+}
+.n-phone__bar--top {
+  align-self: start;
+  border-top: 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+  padding: 10px;
+}
+.n-phone__url {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.06);
+  text-align: center;
+}
+.n-phone__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #2f6fdf;
+}
+.n-glyph {
+  width: 20px;
+  height: 20px;
+}
+.is-hot {
+  position: relative;
+  color: #c2382b !important;
+}
+.n-phone__btn.is-hot,
+.n-phone__app.is-hot,
+.n-phone__head .is-hot,
+.n-phone__alert .is-hot {
+  animation: n-hot 1.4s ease-in-out infinite;
+}
+@keyframes n-hot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(194 56 43 / 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgb(194 56 43 / 0);
+  }
+}
+.n-phone__list {
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  background: #fff;
+}
+.n-phone__list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.04);
+}
+.n-phone__list li.is-hot {
+  font-weight: 700;
+  background: rgb(194 56 43 / 0.1);
+  outline: 2px solid rgb(194 56 43 / 0.6);
+}
+.n-phone__head {
+  align-self: start;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #fff;
+  color: #2f6fdf;
+}
+.n-phone__head .is-hot {
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 0 4px;
+}
+.n-phone__appname {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #fff;
+}
+.n-phone__appname img {
+  border-radius: 8px;
+}
+.n-phone__home {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(160deg, #3c5a8c, #1f2940);
+  min-height: 120px;
+}
+.n-phone__app {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.22);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.n-phone__app img {
+  width: 100%;
+  height: 100%;
+}
+.n-phone__alert {
+  margin: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.95);
+  display: grid;
+  gap: 6px;
+  text-align: center;
+}
+.n-phone__alert div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgb(0 0 0 / 0.1);
+  padding-top: 6px;
+  color: #2f6fdf;
+}
+.n-phone__alert .is-hot {
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+/* ---------- notifications panel ---------- */
+.n-push {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.n-push p {
+  margin: 0;
+}
+.n-push__on {
+  font-weight: 650;
+  color: var(--success);
+}
+.n-push__prefs {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.n-push__prefs label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.n-push__prefs input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+}
+.n-push__privacy {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+.n-ask__art {
+  border-radius: 22px;
+  justify-self: center;
+}
+
+/* ---------- install page ---------- */
+.n-install-page header {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.n-install-page__icon {
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.3);
+}
+
+/* ---------- update / offline bar ---------- */
+.n-pwa-bar {
+  position: fixed;
+  inset: max(10px, env(safe-area-inset-top)) 12px auto;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 650;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.3);
+}
+
+/* ---------- view transitions between tabs ---------- */
+.n-shell__main {
+  view-transition-name: nisse-page;
+}
+.n-nav--fixed {
+  view-transition-name: nisse-nav;
+}
+::view-transition-old(nisse-page) {
+  animation: n-page-out 0.16s ease-in both;
+}
+::view-transition-new(nisse-page) {
+  animation: n-page-in 0.24s ease-out both;
+}
+@keyframes n-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+    filter: blur(2px);
+  }
+}
+@keyframes n-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n-guide__step,
+  .n-guide__pointer,
+  .is-hot {
+    animation: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

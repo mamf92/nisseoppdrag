@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Nisseoppdrag app icon: a red nisse cap in the night barn, two eyes watching from under the fur.
+       Everything that matters sits inside the central 80 % so the maskable crop keeps it. -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="56%" r="50%">
+      <stop offset="0" stop-color="#e8a94b" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#e8a94b" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#e8a94b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9493a"/>
+      <stop offset="1" stop-color="#9e2a20"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f2940"/>
+      <stop offset="1" stop-color="#11161f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sky)"/>
+  <circle cx="256" cy="290" r="230" fill="url(#glow)"/>
+  <g fill="#f3ead8">
+    <circle cx="92" cy="96" r="4"/>
+    <circle cx="140" cy="62" r="2.5"/>
+    <circle cx="418" cy="84" r="3"/>
+    <circle cx="452" cy="140" r="2"/>
+    <circle cx="70" cy="190" r="2"/>
+    <path d="M384 62l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" opacity="0.9"/>
+  </g>
+  <!-- the cap, flopping over to the right -->
+  <path d="M146 330 C160 236 206 150 290 122 C340 106 384 124 398 168 C362 158 334 176 326 214 C318 254 342 298 366 330 Z" fill="url(#cap)"/>
+  <path d="M210 300 C220 240 250 190 300 160" stroke="#7d1f18" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <circle cx="402" cy="176" r="30" fill="#f3ead8"/>
+  <rect x="126" y="314" width="260" height="58" rx="29" fill="#f3ead8"/>
+  <path d="M138 343 h236" stroke="#d9cdb4" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/>
+  <!-- eyes in the dark below the brim -->
+  <ellipse cx="218" cy="410" rx="15" ry="11" fill="#f7d774"/>
+  <ellipse cx="294" cy="410" rx="15" ry="11" fill="#f7d774"/>
+  <circle cx="222" cy="410" r="5" fill="#11161f"/>
+  <circle cx="298" cy="410" r="5" fill="#11161f"/>
+</svg>

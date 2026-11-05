@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
@@ -12,6 +12,12 @@ import { useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import { Button, LanguageSwitch, Sheet, TextField, useToast } from '../ui';
 import { FarmerNamePicker } from './FarmerNamePicker';
+import { PWA_ENABLED } from '../pwa/flag';
+
+// Notification switches only exist in builds with the experimental PWA.
+const NotificationsPanel = PWA_ENABLED
+  ? lazy(() => import('../pwa/NotificationsPanel').then((m) => ({ default: m.NotificationsPanel })))
+  : null;
 
 const STORIES: readonly Story[] = ['gaarden', 'laaven'];
 const NO_NAMES: ReadonlySet<string> = new Set();
@@ -176,11 +182,31 @@ export function ProfilePage() {
         <LanguageSwitch />
       </section>
 
+      {NotificationsPanel ? (
+        <section aria-labelledby="push-h">
+          <h2 id="push-h">{t('pwa.push.title')}</h2>
+          <Suspense fallback={null}>
+            <NotificationsPanel
+              onInstallGuide={() => {
+                void navigate('/installer');
+              }}
+            />
+          </Suspense>
+          <p>
+            <Link to="/installer">{t('pwa.guide.open')}</Link>
+          </p>
+        </section>
+      ) : null}
+
       <section className="n-row">
         <Button
           variant="ghost"
           onClick={() => {
-            void signOut().then(() => navigate('/logg-inn', { replace: true }));
+            // A device that signs out stops getting this account's notifications.
+            const forget = PWA_ENABLED
+              ? import('../pwa/push').then((m) => m.forgetThisDevice()).catch(() => undefined)
+              : Promise.resolve();
+            void forget.then(() => signOut()).then(() => navigate('/logg-inn', { replace: true }));
           }}
         >
           {t('auth.signout')}

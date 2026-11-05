@@ -18,6 +18,7 @@
     "gen:types": "bash scripts/gen-types.sh"
   },
   "devDependencies": {
+    "http_ece": "1.2.0",
     "prettier": "^3.9.10",
     "supabase": "^2.121.0"
   },
