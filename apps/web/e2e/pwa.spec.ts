@@ -129,6 +129,11 @@ test('a computer does not get the guide uninvited, but /installer has it', async
 
 for (const story of ['gaarden', 'laaven'] as const) {
   test(`Meg has the notification switch in ${story}`, async ({ page }) => {
+    // Chromium's headless shell reports «denied» before anyone is asked, whatever the context
+    // grants; pin the state of a visitor who has not decided yet, who should see «Slå på».
+    await page.addInitScript(() => {
+      Object.defineProperty(Notification, 'permission', { get: () => 'default' });
+    });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.addInitScript((value) => {
       window.localStorage.setItem('nisse-theme', value);
