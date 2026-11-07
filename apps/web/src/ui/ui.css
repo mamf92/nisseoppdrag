@@ -138,6 +138,12 @@
   flex: none;
   filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.28));
 }
+.n-tile picture,
+.n-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .n-tile svg {
   display: block;
   width: 100%;
