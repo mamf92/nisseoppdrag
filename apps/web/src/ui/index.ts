@@ -16,7 +16,7 @@ export { LeaderboardRow } from './LeaderboardRow';
 export { MissionCard } from './MissionCard';
 export type { MissionStatus } from './MissionCard';
 export { NisseAvatar } from './NisseAvatar';
-export { PORTRAITS, asPortrait } from './portraits';
+export { PORTRAITS, asPortrait, defaultPortrait } from './portraits';
 export type { PortraitId } from './portraits';
 export {
   CarvedBand,

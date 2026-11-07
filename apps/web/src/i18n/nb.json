@@ -424,7 +424,6 @@
   "portrait.choose": "Velg portrett",
   "portrait.use": "Bruk dette",
   "portrait.done": "Portrettet er byttet.",
-  "portrait.default": "Den tegnede nissen",
   "portrait.lyktenissen-1": "Lyktenissen ser opp",
   "portrait.lyktenissen-2": "Lyktenissen smiler",
   "portrait.grotnissa-1": "Grøtnissa",
@@ -443,5 +442,7 @@
   "portrait.gamlenissen-1": "Gamlenissen",
   "portrait.gamlenissen-2": "Gamlenissen dupper av",
   "portrait.fjoskatten": "Fjøskatten",
-  "portrait.musa": "Låvemusa"
+  "portrait.fjoskatten-2": "Fjøskatten sover",
+  "portrait.musa": "Låvemusa",
+  "portrait.musa-2": "Låvemusa med sleiva"
 }

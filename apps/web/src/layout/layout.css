@@ -383,9 +383,11 @@
   font-family: var(--font-display-stack);
   font-size: 1.1rem;
 }
+/* Flex so a short last row sits centred instead of hanging off the left edge. */
 .n-portrait-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
   margin: 0;
   padding: 0;
@@ -393,6 +395,10 @@
   min-width: 0;
 }
 .n-portrait-grid label {
+  flex: 0 0 calc((100% - 4 * 6px) / 5);
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  min-width: 0;
   position: relative;
   display: grid;
   place-items: center;

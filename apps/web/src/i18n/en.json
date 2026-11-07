@@ -424,7 +424,6 @@
   "portrait.choose": "Choose a portrait",
   "portrait.use": "Use this one",
   "portrait.done": "Portrait changed.",
-  "portrait.default": "The drawn nisse",
   "portrait.lyktenissen-1": "Lantern nisse looking up",
   "portrait.lyktenissen-2": "Lantern nisse smiling",
   "portrait.grotnissa-1": "Porridge nisse",
@@ -443,5 +442,7 @@
   "portrait.gamlenissen-1": "The old nisse",
   "portrait.gamlenissen-2": "The old nisse dozing",
   "portrait.fjoskatten": "The barn cat",
-  "portrait.musa": "The barn mouse"
+  "portrait.fjoskatten-2": "The barn cat asleep",
+  "portrait.musa": "The barn mouse",
+  "portrait.musa-2": "The barn mouse with the ladle"
 }

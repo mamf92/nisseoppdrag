@@ -25,14 +25,15 @@ describe('leaderboard page', () => {
     const podium = await screen.findByRole('list', { name: 'Pallen' });
     expect(within(podium).getAllByRole('listitem')).toHaveLength(3);
     expect(within(podium).getByText('Grøtnissen (deg)')).toBeInTheDocument();
-    // a chosen portrait is painted; an unknown id falls back to the drawn nisse
+    // a chosen portrait is painted; an unknown id falls back to the member's default portrait
     const avatars = podium.querySelectorAll('.n-avatar');
     expect(avatars[0]).toHaveAttribute('data-portrait', 'fjoskatten');
     expect(avatars[0]?.querySelector('image')).toHaveAttribute(
       'href',
       '/art/portraits/fjoskatten-128.webp',
     );
-    expect(avatars[2]).not.toHaveAttribute('data-portrait');
+    expect(avatars[2]?.getAttribute('data-portrait')).toBeTruthy();
+    expect(avatars[2]?.querySelector('use[href="#i-nisse"]')).toBeNull();
     expect(calls.rpc).toHaveBeenCalledWith('leaderboard', { p_scope: 'season' });
 
     await user.click(screen.getByRole('button', { name: 'Denne uken' }));
@@ -157,19 +158,17 @@ describe('profile page', () => {
     expect(screen.queryByRole('button', { name: 'Bytt portrett' })).not.toBeInTheDocument();
   });
 
-  it('can go back to the drawn nisse', async () => {
-    const { client, calls } = fakeClient({
-      session: true,
-      me: { ...MEMBER_ME, portrait: 'musa' },
-    });
+  it('gives a player without a choice a painted default, and has no drawn nisse', async () => {
+    const { client } = fakeClient({ session: true, me: { ...MEMBER_ME, portrait: null } });
     const user = userEvent.setup();
     renderWithProviders(<App />, { client, route: '/meg' });
-    await user.click(await screen.findByRole('button', { name: 'Bytt portrett' }));
-    await user.click(screen.getByRole('radio', { name: 'Den tegnede nissen' }));
-    await user.click(screen.getByRole('button', { name: 'Bruk dette' }));
-    await waitFor(() => {
-      expect(calls.rpc).toHaveBeenCalledWith('set_portrait', {});
-    });
+    const open = await screen.findByRole('button', { name: 'Bytt portrett' });
+    const shown = open.querySelector('.n-avatar')?.getAttribute('data-portrait');
+    expect(shown).toBeTruthy();
+    await user.click(open);
+    expect(screen.getAllByRole('radio')).toHaveLength(21);
+    expect(screen.queryByRole('radio', { name: 'Den tegnede nissen' })).not.toBeInTheDocument();
+    expect(screen.getByRole('radio', { checked: true }).getAttribute('value')).toBe(shown);
   });
 
   it('deletes the account only after the word is typed', async () => {

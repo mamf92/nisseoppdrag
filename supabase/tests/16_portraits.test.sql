@@ -28,10 +28,10 @@ end $$;
 
 select plan(12);
 
-select is((select count(*)::int from public.portraits), 19, 'the set has nineteen painted portraits');
+select is((select count(*)::int from public.portraits), 21, 'the set has twenty-one painted portraits');
 
 select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
-select is((select me() ->> 'portrait'), null, 'a new player has no portrait (the drawn nisse)');
+select is((select me() ->> 'portrait'), null, 'a new player has no chosen portrait');
 select lives_ok($$select set_portrait('fjoskatten')$$, 'a player can pick a portrait');
 select is((select me() ->> 'portrait'), 'fjoskatten', 'me() returns the portrait');
 select is((select portrait from leaderboard('season')), 'fjoskatten', 'the leaderboard returns the portrait');
