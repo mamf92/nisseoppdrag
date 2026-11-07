@@ -10,7 +10,6 @@ export function pwaEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
 
 const HEAD_TAGS = [
   { tag: 'link', attrs: { rel: 'manifest', href: '/manifest.webmanifest' } },
-  { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png' } },
   { tag: 'meta', attrs: { name: 'theme-color', content: '#161d2b' } },
   { tag: 'meta', attrs: { name: 'mobile-web-app-capable', content: 'yes' } },
   { tag: 'meta', attrs: { name: 'apple-mobile-web-app-capable', content: 'yes' } },
