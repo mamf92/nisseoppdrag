@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MEMBER_ME, fakeClient } from '../test-auth';
 import { renderWithProviders } from '../test-utils';
@@ -92,7 +92,7 @@ describe('HomePage', () => {
     expect(await screen.findByRole('button', { name: 'Prøv igjen' })).toBeInTheDocument();
   });
 
-  it('completes a mission after the undo window, and undo cancels it', async () => {
+  it('completes a mission at once, with no timed undo', async () => {
     const complete = vi.fn(() => ({
       data: { points: 10, new_achievements: [] },
       error: null,
@@ -104,29 +104,13 @@ describe('HomePage', () => {
     await screen.findByRole('heading', { name: 'Oppdrag 1' });
 
     await user.click(within(card('Oppdrag 1')).getByRole('button', { name: 'Fullført!' }));
-    expect(within(card('Oppdrag 1')).getByText('Fullfører om 4 sekunder …')).toBeInTheDocument();
-    await user.click(within(card('Oppdrag 1')).getByRole('button', { name: 'Angre' }));
-    expect(
-      within(card('Oppdrag 1')).getByRole('button', { name: 'Fullført!' }),
-    ).toBeInTheDocument();
-
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    try {
-      await user.click(within(card('Oppdrag 2')).getByRole('button', { name: 'Fullført!' }));
-      expect(complete).not.toHaveBeenCalled();
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(4100);
-      });
-      await waitFor(() => {
-        expect(complete).toHaveBeenCalledTimes(1);
-      });
-      expect(calls.rpc).toHaveBeenCalledWith('complete_assignment', { p_assignment: 'a2' });
-    } finally {
-      vi.useRealTimers();
-    }
     await waitFor(() => {
-      expect(within(card('Oppdrag 2')).getByText('Fullført')).toBeInTheDocument();
+      expect(complete).toHaveBeenCalledTimes(1);
     });
+    expect(calls.rpc).toHaveBeenCalledWith('complete_assignment', { p_assignment: 'a1' });
+    expect(within(card('Oppdrag 1')).getByText('Fullført')).toBeInTheDocument();
+    expect(within(card('Oppdrag 1')).queryByRole('button', { name: 'Angre' })).toBeNull();
+    expect(screen.queryByText(/sekunder/)).toBeNull();
   });
 
   it('skips after one confirmation and rolls back with a toast on skip_used', async () => {
