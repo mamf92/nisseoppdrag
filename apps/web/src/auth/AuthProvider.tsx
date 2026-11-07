@@ -20,7 +20,7 @@ export interface Me {
   name: string;
   nisseName: string | null;
   farmerName: string | null;
-  /** The chosen portrait, or null for the drawn nisse. */
+  /** The chosen portrait, or null before one is chosen (a default from the member id shows). */
   portrait: PortraitId | null;
   /** False while the database has no portraits yet (me() lacks the key): the picker stays hidden. */
   canPickPortrait: boolean;
@@ -63,7 +63,7 @@ interface AuthContextValue {
   deleteAccount: () => Promise<AuthError | null>;
   /** Switches story; the name is for that story, and can be left out when the player has one. */
   updateProfile: (story: Story, name?: string) => Promise<AuthError | null>;
-  /** Picks a portrait; null goes back to the drawn nisse. */
+  /** Picks a portrait; null clears the choice (back to the default from the member id). */
   setPortrait: (portrait: PortraitId | null) => Promise<AuthError | null>;
 }
 

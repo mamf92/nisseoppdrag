@@ -67,7 +67,11 @@ export function LeaderboardPage() {
           {podium.map((row) => (
             <li key={row.memberId}>
               <b aria-label={t('leaderboard.rank', { n: row.rank })}>{row.rank}</b>
-              <NisseAvatar portrait={row.portrait} size={row.rank === 1 ? 64 : 52} />
+              <NisseAvatar
+                portrait={row.portrait}
+                seed={row.memberId}
+                size={row.rank === 1 ? 64 : 52}
+              />
               <span>
                 {row.memberId === me ? t('leaderboard.me', { name: row.name }) : row.name}
               </span>
@@ -86,6 +90,7 @@ export function LeaderboardPage() {
               name={row.name}
               points={row.points}
               portrait={row.portrait}
+              seed={row.memberId}
               me={row.memberId === me}
             />
           ))}
@@ -99,6 +104,7 @@ export function LeaderboardPage() {
             name={mine.name}
             points={mine.points}
             portrait={mine.portrait}
+            seed={mine.memberId}
             me
           />
         </ol>

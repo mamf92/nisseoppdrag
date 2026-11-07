@@ -1,4 +1,4 @@
-import { asPortrait, portraitSrc } from './portraits';
+import { asPortrait, defaultPortrait, portraitSrc } from './portraits';
 
 export interface AvatarLook {
   cap?: string;
@@ -7,20 +7,24 @@ export interface AvatarLook {
 }
 
 // The player's portrait inside the carved wooden ring. With no chosen portrait (or an id this
-// build has no art for) it is the drawn nisse, whose colours can come from a look through CSS
-// variables on the sprite symbol, so only plain hex colours are passed on.
+// build has no art for) a player gets a default portrait picked from their member id (`seed`).
+// Without a seed it is the drawn nisse (kit pages only), whose colours can come from a look
+// through CSS variables on the sprite symbol, so only plain hex colours are passed on.
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export function NisseAvatar({
   look,
   portrait,
+  seed,
   size = 40,
 }: {
   look?: AvatarLook;
   portrait?: string | null;
+  /** The member id, for the default portrait when none is chosen. */
+  seed?: string;
   size?: number;
 }) {
-  const id = asPortrait(portrait);
+  const id = asPortrait(portrait) ?? (seed ? defaultPortrait(seed) : null);
   const style: Record<string, string | number> = { width: size, height: size };
   if (look?.cap && HEX.test(look.cap)) style['--nisse-cap'] = look.cap;
   if (look?.beard && HEX.test(look.beard)) style['--nisse-beard'] = look.beard;

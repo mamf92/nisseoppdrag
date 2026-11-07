@@ -4,22 +4,21 @@ import { useT } from '../i18n/I18nProvider';
 import { Button, NisseAvatar, PORTRAITS } from '../ui';
 import type { PortraitId } from '../ui';
 
-// A fixed set of painted portraits plus the drawn nisse ('' in the form). Radios inside labels,
-// so the grid works with arrow keys and screen readers like any radio group.
+// A fixed set of painted portraits. Radios inside labels, so the grid works with arrow keys and
+// screen readers like any radio group.
 export function PortraitPicker({
   value,
   onCancel,
   onSubmit,
 }: {
-  value: PortraitId | null;
+  value: PortraitId;
   onCancel: () => void;
-  onSubmit: (portrait: PortraitId | null) => Promise<void>;
+  onSubmit: (portrait: PortraitId) => Promise<void>;
 }) {
   const t = useT();
-  const [picked, setPicked] = useState<PortraitId | null>(value);
+  const [picked, setPicked] = useState<PortraitId>(value);
   const [busy, setBusy] = useState(false);
-  const options: readonly (PortraitId | null)[] = [null, ...PORTRAITS];
-  const label = (id: PortraitId | null) => t(id ? `portrait.${id}` : 'portrait.default');
+  const label = (id: PortraitId) => t(`portrait.${id}`);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -37,18 +36,18 @@ export function PortraitPicker({
       </div>
       <fieldset className="n-portrait-grid">
         <legend className="sr-only">{t('portrait.choose')}</legend>
-        {options.map((id) => (
-          <label key={id ?? 'default'} title={label(id)}>
+        {PORTRAITS.map((id) => (
+          <label key={id} title={label(id)}>
             <input
               type="radio"
               name="portrait"
-              value={id ?? ''}
+              value={id}
               checked={picked === id}
               onChange={() => {
                 setPicked(id);
               }}
             />
-            <NisseAvatar portrait={id} size={60} />
+            <NisseAvatar portrait={id} size={56} />
             <span className="sr-only">{label(id)}</span>
           </label>
         ))}

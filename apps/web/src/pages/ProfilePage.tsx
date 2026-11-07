@@ -11,6 +11,7 @@ import { gameErrorKey } from '../game/errors';
 import { useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import { ArtPiece, Button, LanguageSwitch, NisseAvatar, Sheet, TextField, useToast } from '../ui';
+import { defaultPortrait } from '../ui';
 import type { PortraitId } from '../ui';
 import { PortraitPicker } from './PortraitPicker';
 import { FarmerNamePicker } from './FarmerNamePicker';
@@ -127,7 +128,7 @@ export function ProfilePage() {
     return null;
   }
 
-  async function choosePortrait(portrait: PortraitId | null) {
+  async function choosePortrait(portrait: PortraitId) {
     const failure = await setPortrait(portrait);
     if (failure) {
       toast.show(t(gameErrorKey(failure)), 'error');
@@ -172,11 +173,11 @@ export function ProfilePage() {
               setPicking(true);
             }}
           >
-            <NisseAvatar portrait={me.portrait} size={104} />
+            <NisseAvatar portrait={me.portrait} seed={me.memberId} size={104} />
             <span>{t('portrait.open')}</span>
           </button>
         ) : (
-          <NisseAvatar size={104} />
+          <NisseAvatar seed={me.memberId} size={104} />
         )}
         <div>
           <h1>{me.name}</h1>
@@ -268,7 +269,7 @@ export function ProfilePage() {
       >
         {picking ? (
           <PortraitPicker
-            value={me.portrait}
+            value={me.portrait ?? defaultPortrait(me.memberId)}
             onCancel={() => {
               setPicking(false);
             }}

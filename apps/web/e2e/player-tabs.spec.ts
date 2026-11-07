@@ -142,8 +142,8 @@ for (const [story, size] of [
     await page.goto('/meg');
     await page.getByRole('button', { name: 'Bytt portrett' }).click();
     const dialog = page.getByRole('dialog');
-    await expect(dialog.getByRole('radio', { name: 'Låvemusa' })).toBeChecked();
-    await dialog.getByRole('radio', { name: 'Fjøskatten' }).check();
+    await expect(dialog.getByRole('radio', { name: 'Låvemusa', exact: true })).toBeChecked();
+    await dialog.getByRole('radio', { name: 'Fjøskatten', exact: true }).check();
     await expect(dialog.locator('.n-portrait-preview')).toHaveText('Fjøskatten');
     // the chosen portrait is shown large, not as a thumbnail
     const preview = await dialog.locator('.n-portrait-preview .n-avatar').boundingBox();

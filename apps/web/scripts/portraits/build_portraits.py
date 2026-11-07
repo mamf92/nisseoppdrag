@@ -33,7 +33,9 @@ CROPS = {
     "gamlenissen-1": ("round2/R-01-fjosnissen-sheet.png", 300, 740, 460),
     "gamlenissen-2": ("round2/R-01-fjosnissen-sheet.png", 1260, 740, 460),
     "fjoskatten": ("L-07-cat-mice-sheet.png", 300, 205, 380),
+    "fjoskatten-2": ("L-07-cat-mice-sheet.png", 875, 470, 270),
     "musa": ("L-07-cat-mice-sheet.png", 290, 840, 320),
+    "musa-2": ("L-07-cat-mice-sheet.png", 1180, 855, 330),
 }
 
 
