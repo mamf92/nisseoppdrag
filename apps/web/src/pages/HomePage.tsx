@@ -12,7 +12,16 @@ import { HomePainting } from '../home/HomePainting';
 import { useSnowTaps } from '../fun';
 import { Moment, StoryPainting } from '../home/Moment';
 import { useNow } from '../home/useNow';
-import { Badge, Button, CATEGORIES, Hatches, MissionCard, StatTile, TokenChip } from '../ui';
+import {
+  ArtPiece,
+  Badge,
+  Button,
+  CATEGORIES,
+  Hatches,
+  MissionCard,
+  StatTile,
+  TokenChip,
+} from '../ui';
 import { Sheet } from '../ui';
 import { hatchArt } from '../ui/hatchArt';
 
@@ -221,6 +230,8 @@ export function HomePage() {
           </aside>
         </div>
       ) : null}
+
+      {openWeek ? <ArtPiece spot="home" /> : null}
 
       <Sheet
         open={skipSlot !== null}

@@ -82,11 +82,10 @@ function Hatch({
       data-state={state}
       aria-label={label}
     >
-      <Icon name="tulip" className="n-hatch__corner n-hatch__corner--tl" />
-      <Icon name="tulip" className="n-hatch__corner n-hatch__corner--tr" />
+      <span className="n-hatch__lintel" aria-hidden="true" />
       <div className="n-hatch__stack">
         <span className="n-hatch__num">{n}</span>
-        <Icon name="tulip" className="n-hatch__orn" />
+        <Icon name="rosette" className="n-hatch__orn" />
       </div>
       <span className="n-hatch__lbl">{t(`category.${category}`)}</span>
     </li>

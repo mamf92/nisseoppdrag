@@ -3,7 +3,7 @@ import { BadgeViewer, useBoop } from '../fun';
 import type { ViewedBadge } from '../fun';
 import { badgeFile, useBadges } from '../game/queries';
 import { useI18n, useT } from '../i18n/I18nProvider';
-import { Badge, Button } from '../ui';
+import { ArtPiece, Badge, Button } from '../ui';
 
 // The «?» medallion only wobbles when tapped: there is nothing to see yet.
 function SecretBadge() {
@@ -34,6 +34,8 @@ export function BadgesPage() {
           {badges.isSuccess ? t('badges.count', { n: unlocked, total: list.length }) : ''}
         </p>
       </header>
+
+      <ArtPiece spot="badges" />
 
       {badges.isPending ? <p role="status">{t('app.loading')}</p> : null}
       {badges.isError ? (

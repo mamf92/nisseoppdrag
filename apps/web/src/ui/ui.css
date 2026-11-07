@@ -297,26 +297,22 @@
   text-transform: uppercase;
   color: var(--hatch-lbl-ink);
 }
-.n-hatch__corner {
+/* a row of chip-carved triangles along the top of the hatch, like the lintel of a stabbur door */
+.n-hatch__lintel {
   position: absolute;
-  width: 14px;
-  height: 14px;
-  color: var(--primary);
-  opacity: 0.75;
-}
-.n-hatch__corner--tl {
-  top: 4px;
-  left: 4px;
-}
-.n-hatch__corner--tr {
-  top: 4px;
-  right: 4px;
-  transform: scaleX(-1);
+  inset: 0 0 auto 0;
+  height: 8px;
+  background: var(--carving);
+  opacity: 0.8;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8'%3E%3Cpath d='M0 0h10L5 6.5z'/%3E%3C/svg%3E")
+    repeat-x left top / 10px 8px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8'%3E%3Cpath d='M0 0h10L5 6.5z'/%3E%3C/svg%3E")
+    repeat-x left top / 10px 8px;
 }
 .n-hatch__orn {
   width: 26px;
   height: 26px;
-  color: var(--primary);
+  color: var(--carving);
   margin-top: 4px;
 }
 .n-hatch__stack {
@@ -368,7 +364,7 @@
   color: var(--ink-muted);
 }
 .n-hatch--skipped .n-hatch__orn,
-.n-hatch--skipped .n-hatch__corner {
+.n-hatch--skipped .n-hatch__lintel {
   opacity: 0.3;
 }
 .n-hatch--open {
@@ -385,9 +381,8 @@
   width: 16px;
   height: 16px;
 }
-.n-hatches--mini .n-hatch__corner {
-  width: 9px;
-  height: 9px;
+.n-hatches--mini .n-hatch__lintel {
+  height: 5px;
 }
 .n-hatches--mini .n-hatch__lbl {
   font-size: 0.55rem;
@@ -1093,4 +1088,46 @@
 ::view-transition-new(root) {
   animation-duration: 0.7s;
   animation-timing-function: ease-in-out;
+}
+
+/* ---------- art pieces: paintings as small bands in empty space ---------- */
+.n-art {
+  position: relative;
+  width: 100%;
+  max-width: 45rem;
+  margin: 8px auto;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.3),
+    0 0 0 3px var(--art-frame, #3b2a1c),
+    0 6px 14px rgb(0 0 0 / 0.18);
+}
+.n-art picture {
+  display: block;
+}
+.n-art img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  object-fit: cover;
+}
+@media (max-width: 520px) {
+  .n-art {
+    width: calc(100% - 6px);
+  }
+  .n-art img {
+    aspect-ratio: 16 / 7;
+  }
+}
+/* a carved band along the top edge, like the lintel of a stabbur */
+.n-art::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 8px;
+  z-index: 1;
+  background: var(--art-frame, #3b2a1c);
+  pointer-events: none;
 }

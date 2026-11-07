@@ -1,4 +1,6 @@
 export { AppNav, PLAYER_NAV } from './AppNav';
+export { ArtPiece } from './ArtPiece';
+export type { ArtSpot } from './ArtPiece';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { CATEGORIES } from './categories';
