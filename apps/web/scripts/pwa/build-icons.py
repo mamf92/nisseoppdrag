@@ -27,7 +27,12 @@ inner = src.resize((800, 800), Image.LANCZOS)
 pad.paste(inner, (112, 112))
 save(pad, icons / 'maskable-512.png', 512)
 
-# Browser tab: tighter crop on the cap and nose, where the details survive at 32 px.
-tab = src.crop((180, 40, 880, 740))
-save(tab.resize((700, 700)), web / 'public' / 'favicon-48.png', 48)
-save(tab.resize((700, 700)), web / 'public' / 'favicon-32.png', 32)
+# Browser tab: a cut-out of the painted nisse on a transparent background, so it also works on
+# dark tabs. It is a separate bolder, simpler painting (favicon-source.webp) that fills the square.
+fav = Image.open(here / 'favicon-source.webp').convert('RGBA')
+sizes = (16, 32, 48, 180)
+for size in sizes[:3]:
+    fav.resize((size, size), Image.LANCZOS).save(web / 'public' / f'favicon-{size}.png', optimize=True)
+fav.resize((48, 48), Image.LANCZOS).save(
+    web / 'public' / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)]
+)
