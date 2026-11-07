@@ -19,9 +19,7 @@ const badge = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
   </g>
 </svg>`;
 
-const icons = [
-  { file: 'badge-96.png', size: 96, source: badge, transparent: true },
-];
+const icons = [{ file: 'badge-96.png', size: 96, source: badge, transparent: true }];
 
 await mkdir(out, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH });
