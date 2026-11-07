@@ -64,7 +64,7 @@ for (const story of ['gaarden', 'laaven'] as const) {
   }
 }
 
-test('complete (with undo), skip and the error toast', async ({ page }) => {
+test('complete, skip and the error toast', async ({ page }) => {
   const calls: string[] = [];
   await signInAs(page, {
     me: MEMBER,
@@ -80,16 +80,11 @@ test('complete (with undo), skip and the error toast', async ({ page }) => {
   await page.goto('/');
   const card = (n: number) => page.getByRole('article', { name: `Oppdrag ${String(n)}` });
 
-  // Undo inside the window: nothing is sent.
-  await card(1).getByRole('button', { name: 'Fullført!' }).click();
-  await expect(card(1).getByText('Fullfører om 4 sekunder …')).toBeVisible();
-  await card(1).getByRole('button', { name: 'Angre' }).click();
-  await expect(card(1).getByRole('button', { name: 'Fullført!' })).toBeVisible();
-
-  // Left alone, it is sent after four seconds.
+  // Completing is sent at once and there is no timed undo to shift the layout.
   await card(2).getByRole('button', { name: 'Fullført!' }).click();
-  await expect.poll(() => calls, { timeout: 8000 }).toEqual(['complete:a2']);
+  await expect.poll(() => calls, { timeout: 4000 }).toEqual(['complete:a2']);
   await expect(card(2).getByText('Fullført', { exact: true })).toBeVisible();
+  await expect(card(2).getByRole('button', { name: 'Angre' })).toHaveCount(0);
 
   // The database refuses the skip: the card comes back and a toast says why.
   await card(3).getByRole('button', { name: 'Hopp over' }).click();

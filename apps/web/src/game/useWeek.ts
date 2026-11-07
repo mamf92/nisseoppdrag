@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../auth/AuthProvider';
 import { gameErrorKey, shouldRefetch } from './errors';
@@ -6,8 +6,6 @@ import { parseWeek } from './week';
 import type { Week } from './week';
 import { useToast } from '../ui';
 import { useT } from '../i18n/I18nProvider';
-
-export const UNDO_MS = 4000;
 
 export const weekKey = (memberId: string) => ['week', memberId] as const;
 
@@ -50,9 +48,9 @@ function parseComplete(value: unknown): CompleteResult {
 type WeekPatch = (week: Extract<Week, { state: 'open' }>) => Extract<Week, { state: 'open' }>;
 
 /**
- * The player's three actions on a mission. Complete waits `UNDO_MS` so a mis-tap can be taken
- * back; skip is optimistic and rolls back on an error code; reroll needs the server's pick, so it
- * only marks the card busy. The database remains the judge of every rule.
+ * The player's three actions on a mission. Complete and skip are optimistic and roll back on an
+ * error; a skip can be taken back for as long as the week is open. Reroll needs the server's pick,
+ * so it only marks the card busy. The database remains the judge of every rule.
  */
 export function useWeekActions(onResult: (result: CompleteResult) => void) {
   const { client, state } = useAuth();
@@ -62,9 +60,7 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
   const t = useT();
   const key = weekKey(memberId);
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
-  const [undoable, setUndoable] = useState<ReadonlySet<string>>(new Set());
   const [shaken, setShaken] = useState<number | null>(null);
-  const timers = useRef(new Map<string, number>());
 
   const patch = useCallback(
     (fn: WeekPatch) => {
@@ -95,6 +91,10 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
       });
       if (error) throw error;
       return parseComplete(data);
+    },
+    // The card looks done at once; the server's answer fills in the real points.
+    onMutate: (assignmentId) => {
+      setPending((all) => new Set(all).add(assignmentId));
     },
     onSuccess: (result, assignmentId) => {
       patch((week) => ({
@@ -199,73 +199,13 @@ export function useWeekActions(onResult: (result: CompleteResult) => void) {
     onError: fail,
   });
 
-  const startComplete = useCallback(
-    (assignmentId: string) => {
-      if (timers.current.has(assignmentId)) return;
-      setPending((all) => new Set(all).add(assignmentId));
-      setUndoable((all) => new Set(all).add(assignmentId));
-      timers.current.set(
-        assignmentId,
-        window.setTimeout(() => {
-          timers.current.delete(assignmentId);
-          setUndoable((all) => {
-            const next = new Set(all);
-            next.delete(assignmentId);
-            return next;
-          });
-          complete.mutate(assignmentId);
-        }, UNDO_MS),
-      );
-    },
-    [complete],
-  );
-
-  const undoComplete = useCallback((assignmentId: string) => {
-    const timer = timers.current.get(assignmentId);
-    if (timer === undefined) return;
-    window.clearTimeout(timer);
-    timers.current.delete(assignmentId);
-    for (const set of [setPending, setUndoable]) {
-      set((all) => {
-        const next = new Set(all);
-        next.delete(assignmentId);
-        return next;
-      });
-    }
-  }, []);
-
-  // Leaving the page must not lose a completion the player has already seen as done.
-  const completeRef = useRef(complete.mutate);
-  useEffect(() => {
-    completeRef.current = complete.mutate;
-  });
-  useEffect(() => {
-    const active = timers.current;
-    const flush = () => {
-      active.forEach((timer, assignmentId) => {
-        window.clearTimeout(timer);
-        completeRef.current(assignmentId);
-      });
-      active.clear();
-    };
-    // Closing or reloading the tab does not unmount React, so send on pagehide too (best effort).
-    window.addEventListener('pagehide', flush);
-    return () => {
-      window.removeEventListener('pagehide', flush);
-      flush();
-    };
-  }, []);
-
   return {
-    /** Assignment ids that look done but are still inside the undo window or being sent. */
+    /** Assignment ids that look done but are still being sent. */
     pending,
-    /** The subset that can still be taken back: the undo window has not yet closed. */
-    undoable,
     /** The slot whose card should shake once, after a reroll. */
     shaken,
     busy: skip.isPending || unskip.isPending || reroll.isPending,
-    startComplete,
-    undoComplete,
+    complete: complete.mutate,
     skip: skip.mutate,
     unskip: unskip.mutate,
     reroll: (assignmentId: string, slot: number) => {

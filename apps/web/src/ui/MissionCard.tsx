@@ -27,9 +27,9 @@ export interface MissionCardProps {
   onSkip?: () => void;
   onReroll?: () => void;
   /** Takes the mission back: shown under a done or skipped stamp while the week is open. */
+  /** A nisse peeks past the card's corner; given the portrait file name, set once a mission is done. */
+  peek?: string;
   onUndo?: () => void;
-  /** Says why the undo is there, for example the seconds left before a completion is sent. */
-  undoNote?: string;
   /** Holds the undo back, for example while the request it would take back is still in flight. */
   undoDisabled?: boolean;
 }
@@ -49,8 +49,8 @@ export function MissionCard({
   onComplete,
   onSkip,
   onReroll,
+  peek,
   onUndo,
-  undoNote,
   undoDisabled,
 }: MissionCardProps) {
   const t = useT();
@@ -67,6 +67,12 @@ export function MissionCard({
       data-status={status}
       aria-labelledby={titleId}
     >
+      {status === 'done' && peek ? (
+        <picture className="n-m-peek">
+          <source type="image/avif" srcSet={`/art/family/${peek}-128.avif`} />
+          <img src={`/art/family/${peek}-128.webp`} alt="" width="48" height="48" />
+        </picture>
+      ) : null}
       <CategoryTile category={category} />
       <div>
         <p className="n-m-cat">{t(`category.${category}`)}</p>
@@ -100,8 +106,7 @@ export function MissionCard({
         <div className="n-m-stamped">
           <p className="n-stamp">{status === 'done' ? t('mission.done') : t('mission.skipped')}</p>
           {onUndo ? (
-            <p className="n-undo" role="status">
-              {undoNote ? <span>{undoNote}</span> : null}
+            <p className="n-undo">
               <Button variant="ghost" disabled={undoDisabled} onClick={onUndo}>
                 {t('home.undo')}
               </Button>

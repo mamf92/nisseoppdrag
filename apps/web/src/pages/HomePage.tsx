@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { useI18n, useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
 import { useCurrentSeason, useLeaderboard, useBadges, badgeFile } from '../game/queries';
-import { UNDO_MS, useWeekActions, useWeekQuery } from '../game/useWeek';
+import { useWeekActions, useWeekQuery } from '../game/useWeek';
 import { useAppBadge } from '../pwa/badge';
 import { countdown, hatchStates, isFullWeek, slotAt } from '../game/week';
 import type { Slot, Week } from '../game/week';
@@ -77,13 +77,15 @@ export function HomePage() {
   const [newBadges, setNewBadges] = useState<string[]>([]);
   const [fullWeekShown, setFullWeekShown] = useState(false);
   const [showFullWeek, setShowFullWeek] = useState(false);
+  // Missions finished during this visit: the nisse peeks past those cards, once.
+  const [justDone, setJustDone] = useState<ReadonlySet<string>>(new Set());
   const wasFull = useRef<boolean | null>(null);
 
   const actions = useWeekActions((result) => {
     if (result.newAchievements.length > 0) setNewBadges(result.newAchievements);
   });
 
-  // The slots as the player sees them: a completion inside the undo window already looks done.
+  // The slots as the player sees them: a completion still on its way already looks done.
   const slots = useMemo<Slot[]>(() => {
     if (week.data?.state !== 'open') return [];
     return week.data.slots.map((slot) =>
@@ -167,7 +169,6 @@ export function HomePage() {
                     </li>
                   );
                 }
-                const undoable = actions.undoable.has(slot.assignmentId);
                 return (
                   <li key={slot.assignmentId}>
                     <MissionCard
@@ -184,12 +185,20 @@ export function HomePage() {
                             : 'open'
                       }
                       gift={gift}
+                      peek={
+                        justDone.has(slot.assignmentId)
+                          ? theme === 'laaven'
+                            ? 'G-24-lavenissen'
+                            : 'G-20-lyktenissen'
+                          : undefined
+                      }
                       shake={actions.shaken === slot.slot}
                       skipDisabled={!openWeek.skipLeft}
                       rerollDisabled={!openWeek.rerollLeft}
                       busy={actions.busy}
                       onComplete={() => {
-                        actions.startComplete(slot.assignmentId);
+                        setJustDone((all) => new Set(all).add(slot.assignmentId));
+                        actions.complete(slot.assignmentId);
                       }}
                       onSkip={() => {
                         setSkipSlot(slot);
@@ -198,18 +207,13 @@ export function HomePage() {
                         actions.reroll(slot.assignmentId, slot.slot);
                       }}
                       onUndo={
-                        undoable
+                        slot.status === 'skipped'
                           ? () => {
-                              actions.undoComplete(slot.assignmentId);
+                              actions.unskip(slot.assignmentId);
                             }
-                          : slot.status === 'skipped'
-                            ? () => {
-                                actions.unskip(slot.assignmentId);
-                              }
-                            : undefined
+                          : undefined
                       }
-                      undoDisabled={!undoable && actions.busy}
-                      undoNote={undoable ? t('home.undo.text', { n: UNDO_MS / 1000 }) : undefined}
+                      undoDisabled={actions.busy}
                     />
                   </li>
                 );
