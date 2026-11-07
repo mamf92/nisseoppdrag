@@ -2,13 +2,10 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Plugin, ResolvedConfig } from 'vite';
 
-// The experimental PWA is on everywhere except Vercel Production, unless VITE_PWA says otherwise:
-//   VITE_PWA=true   force it on (e.g. to try it on Production)
-//   VITE_PWA=false  force it off
+// The PWA is on everywhere, Vercel Production included (since 2026-11-07). VITE_PWA=false turns
+// it off again: the build then ships a service worker that removes itself.
 export function pwaEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  if (env['VITE_PWA'] === 'true') return true;
-  if (env['VITE_PWA'] === 'false') return false;
-  return env['VERCEL_ENV'] !== 'production';
+  return env['VITE_PWA'] !== 'false';
 }
 
 const HEAD_TAGS = [

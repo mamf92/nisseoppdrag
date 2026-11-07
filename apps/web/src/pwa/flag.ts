@@ -1,5 +1,5 @@
-// The experimental PWA is a build-time switch (see vite-pwa.ts): on in previews and local builds,
-// off on Vercel Production unless VITE_PWA=true. With it off none of this code runs.
+// The PWA is a build-time switch (see vite-pwa.ts): on everywhere unless VITE_PWA=false.
+// With it off none of this code runs.
 export const PWA_ENABLED = import.meta.env['VITE_PWA_ENABLED'] === 'true';
 
 // Per-device conveniences in localStorage; never sent anywhere.
