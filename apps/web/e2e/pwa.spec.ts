@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { MEMBER, signInAs } from './mock-supabase';
 
-// The experimental PWA (on in this build, off on Vercel Production).
+// The PWA (on in every build unless VITE_PWA=false).
 
 const IPHONE_26 =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1';
