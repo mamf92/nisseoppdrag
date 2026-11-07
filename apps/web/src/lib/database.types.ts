@@ -359,6 +359,7 @@ export type Database = {
           id: string;
           joined_at: string;
           nisse_name: string | null;
+          portrait: string | null;
           role: Database['public']['Enums']['member_role'];
           story: Database['public']['Enums']['story'];
           user_id: string;
@@ -371,6 +372,7 @@ export type Database = {
           id?: string;
           joined_at?: string;
           nisse_name?: string | null;
+          portrait?: string | null;
           role?: Database['public']['Enums']['member_role'];
           story?: Database['public']['Enums']['story'];
           user_id: string;
@@ -382,12 +384,20 @@ export type Database = {
           id?: string;
           joined_at?: string;
           nisse_name?: string | null;
+          portrait?: string | null;
           role?: Database['public']['Enums']['member_role'];
           story?: Database['public']['Enums']['story'];
           user_id?: string;
           workplace_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'members_portrait_fkey';
+            columns: ['portrait'];
+            isOneToOne: false;
+            referencedRelation: 'portraits';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'members_workplace_id_fkey';
             columns: ['workplace_id'];
@@ -490,6 +500,22 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      portraits: {
+        Row: {
+          id: string;
+          sort: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          id: string;
+          sort: number;
+        };
+        Update: {
+          id?: string;
+          sort?: number;
+        };
+        Relationships: [];
       };
       push_subscriptions: {
         Row: {
@@ -687,6 +713,7 @@ export type Database = {
           member_id: string;
           name: string;
           points: number;
+          portrait: string;
           rank: number;
         }[];
       };
@@ -746,6 +773,7 @@ export type Database = {
         Returns: Json;
       };
       reroll_assignment: { Args: { p_assignment: string }; Returns: Json };
+      set_portrait: { Args: { p_portrait?: string }; Returns: undefined };
       skip_assignment: { Args: { p_assignment: string }; Returns: Json };
       taken_names: { Args: { p_code: string }; Returns: string[] };
       unskip_assignment: { Args: { p_assignment: string }; Returns: Json };

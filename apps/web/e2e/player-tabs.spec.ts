@@ -3,10 +3,10 @@ import { expect, test } from '@playwright/test';
 import { MEMBER, signInAs } from './mock-supabase';
 
 const BOARD = [
-  { member_id: 'x1', name: 'Lyktenissen', points: 90, rank: 1 },
-  { member_id: 'm1', name: 'Grøtnissen', points: 60, rank: 2 },
-  { member_id: 'x3', name: 'Fjøsnissen', points: 30, rank: 3 },
-  { member_id: 'x4', name: 'Snønissa', points: 10, rank: 4 },
+  { member_id: 'x1', name: 'Lyktenissen', portrait: 'lyktenissen-2', points: 90, rank: 1 },
+  { member_id: 'm1', name: 'Grøtnissen', portrait: 'grotnissa-3', points: 60, rank: 2 },
+  { member_id: 'x3', name: 'Fjøsnissen', portrait: null, points: 30, rank: 3 },
+  { member_id: 'x4', name: 'Snønissa', portrait: 'fjoskatten', points: 10, rank: 4 },
 ];
 
 const ACHIEVEMENTS = [
@@ -39,7 +39,7 @@ for (const story of ['gaarden', 'laaven'] as const) {
         window.localStorage.setItem('nisse-theme', value);
       }, story);
       await signInAs(page, {
-        me: { ...MEMBER, story },
+        me: { ...MEMBER, story, portrait: 'grotnissa-3' },
         rpc: { leaderboard: () => ({ body: BOARD }) },
         tables: {
           achievements: ACHIEVEMENTS,
@@ -118,3 +118,45 @@ test('the privacy page is public', async ({ page }) => {
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
 });
+
+for (const story of ['gaarden', 'laaven'] as const) {
+  test(`the portrait picker in ${story}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript((value) => {
+      window.localStorage.setItem('nisse-theme', value);
+    }, story);
+    const sent: unknown[] = [];
+    await signInAs(page, {
+      me: { ...MEMBER, story, portrait: 'musa' },
+      rpc: {
+        set_portrait: (args) => {
+          sent.push(args);
+          return { body: null };
+        },
+      },
+    });
+    await page.goto('/meg');
+    await page.getByRole('button', { name: 'Bytt portrett' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('radio', { name: 'Låvemusa' })).toBeChecked();
+    await dialog.getByRole('radio', { name: 'Fjøskatten' }).check();
+    await expect(dialog.locator('.n-portrait-preview')).toHaveText('Fjøskatten');
+    // every portrait has its image
+    const broken = await page.evaluate(async () => {
+      const urls = [...document.querySelectorAll('dialog image')].map(
+        (el) => el.getAttribute('href') ?? '',
+      );
+      const codes = await Promise.all(urls.map((url) => fetch(url).then((r) => r.status)));
+      return urls.filter((_, i) => codes[i] !== 200);
+    });
+    expect(broken).toEqual([]);
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: `screenshots/portraits-${story}-390.png`, fullPage: true });
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
+    await dialog.getByRole('button', { name: 'Bruk dette' }).click();
+    await expect.poll(() => sent).toEqual([{ p_portrait: 'fjoskatten' }]);
+  });
+}

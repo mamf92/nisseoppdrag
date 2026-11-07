@@ -344,3 +344,85 @@
   box-shadow: inset 0 0 0 1px var(--line);
   overflow-wrap: anywhere;
 }
+
+/* ---------- Meg: portrait and picker ---------- */
+.n-me-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.n-me-head > div {
+  min-width: 0;
+}
+.n-me-head__portrait {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+.n-me-head__portrait .n-avatar {
+  transition: transform 0.2s ease;
+}
+.n-me-head__portrait:hover .n-avatar,
+.n-me-head__portrait:focus-visible .n-avatar {
+  transform: rotate(-4deg) scale(1.04);
+}
+.n-portrait-preview {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.n-portrait-preview p {
+  margin: 0;
+  font-family: var(--font-display-stack);
+  font-size: 1.1rem;
+}
+.n-portrait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.n-portrait-grid label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.n-portrait-grid input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.n-portrait-grid label:has(input:checked) {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+.n-portrait-grid label:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .n-me-head__portrait .n-avatar {
+    transition: none;
+  }
+}
+.n-portrait-grid .n-avatar {
+  pointer-events: none;
+}

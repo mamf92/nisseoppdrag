@@ -5,10 +5,10 @@ import { MEMBER_ME, fakeClient } from '../test-auth';
 import { renderWithProviders } from '../test-utils';
 
 const BOARD = [
-  { member_id: 'x1', name: 'Lyktenissen', points: 90, rank: 1 },
-  { member_id: 'm1', name: 'Grøtnissen', points: 60, rank: 2 },
-  { member_id: 'x3', name: 'Fjøsnissen', points: 30, rank: 3 },
-  { member_id: 'x4', name: 'Snønissa', points: 0, rank: 4 },
+  { member_id: 'x1', name: 'Lyktenissen', portrait: 'fjoskatten', points: 90, rank: 1 },
+  { member_id: 'm1', name: 'Grøtnissen', portrait: null, points: 60, rank: 2 },
+  { member_id: 'x3', name: 'Fjøsnissen', portrait: 'not-a-portrait', points: 30, rank: 3 },
+  { member_id: 'x4', name: 'Snønissa', portrait: null, points: 0, rank: 4 },
 ];
 
 describe('leaderboard page', () => {
@@ -25,6 +25,14 @@ describe('leaderboard page', () => {
     const podium = await screen.findByRole('list', { name: 'Pallen' });
     expect(within(podium).getAllByRole('listitem')).toHaveLength(3);
     expect(within(podium).getByText('Grøtnissen (deg)')).toBeInTheDocument();
+    // a chosen portrait is painted; an unknown id falls back to the drawn nisse
+    const avatars = podium.querySelectorAll('.n-avatar');
+    expect(avatars[0]).toHaveAttribute('data-portrait', 'fjoskatten');
+    expect(avatars[0]?.querySelector('image')).toHaveAttribute(
+      'href',
+      '/art/portraits/fjoskatten-128.webp',
+    );
+    expect(avatars[2]).not.toHaveAttribute('data-portrait');
     expect(calls.rpc).toHaveBeenCalledWith('leaderboard', { p_scope: 'season' });
 
     await user.click(screen.getByRole('button', { name: 'Denne uken' }));
@@ -118,6 +126,42 @@ describe('profile page', () => {
           p_name: expect.stringMatching(/\S+ \S+/) as unknown,
         }),
       );
+    });
+  });
+
+  it('shows the portrait and saves a new one from the picker', async () => {
+    const { client, calls } = fakeClient({
+      session: true,
+      me: { ...MEMBER_ME, portrait: 'musa' },
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<App />, { client, route: '/meg' });
+    const open = await screen.findByRole('button', { name: 'Bytt portrett' });
+    expect(open.querySelector('.n-avatar')).toHaveAttribute('data-portrait', 'musa');
+    await user.click(open);
+    const use = screen.getByRole('button', { name: 'Bruk dette' });
+    expect(screen.getByRole('radio', { name: 'Låvemusa' })).toBeChecked();
+    expect(use).toBeDisabled();
+    await user.click(screen.getByRole('radio', { name: 'Grøtnissa blunker' }));
+    await user.click(use);
+    await waitFor(() => {
+      expect(calls.rpc).toHaveBeenCalledWith('set_portrait', { p_portrait: 'grotnissa-3' });
+    });
+    expect(await screen.findByText('Portrettet er byttet.')).toBeInTheDocument();
+  });
+
+  it('can go back to the drawn nisse', async () => {
+    const { client, calls } = fakeClient({
+      session: true,
+      me: { ...MEMBER_ME, portrait: 'musa' },
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<App />, { client, route: '/meg' });
+    await user.click(await screen.findByRole('button', { name: 'Bytt portrett' }));
+    await user.click(screen.getByRole('radio', { name: 'Den tegnede nissen' }));
+    await user.click(screen.getByRole('button', { name: 'Bruk dette' }));
+    await waitFor(() => {
+      expect(calls.rpc).toHaveBeenCalledWith('set_portrait', {});
     });
   });
 

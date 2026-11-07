@@ -4,6 +4,8 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Db } from '../lib/supabase';
+import { asPortrait } from '../ui/portraits';
+import type { PortraitId } from '../ui/portraits';
 
 export type Story = 'gaarden' | 'laaven';
 
@@ -18,6 +20,8 @@ export interface Me {
   name: string;
   nisseName: string | null;
   farmerName: string | null;
+  /** The chosen portrait, or null for the drawn nisse. */
+  portrait: PortraitId | null;
   isPlatformAdmin: boolean;
 }
 
@@ -57,6 +61,8 @@ interface AuthContextValue {
   deleteAccount: () => Promise<AuthError | null>;
   /** Switches story; the name is for that story, and can be left out when the player has one. */
   updateProfile: (story: Story, name?: string) => Promise<AuthError | null>;
+  /** Picks a portrait; null goes back to the drawn nisse. */
+  setPortrait: (portrait: PortraitId | null) => Promise<AuthError | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -85,6 +91,7 @@ export function parseMe(value: unknown): Me | null {
     name,
     nisseName: str(value['nisse_name']) ?? null,
     farmerName: str(value['farmer_name']) ?? null,
+    portrait: asPortrait(value['portrait']),
     isPlatformAdmin: value['is_platform_admin'] === true,
   };
 }
@@ -229,6 +236,16 @@ export function AuthProvider({
           p_story: story,
           ...(name === undefined ? {} : { p_name: name.trim() }),
         });
+        if (error) return error;
+        await reload();
+        return null;
+      },
+      async setPortrait(portrait) {
+        if (!client) return missing;
+        const { error } = await client.rpc(
+          'set_portrait',
+          portrait ? { p_portrait: portrait } : {},
+        );
         if (error) return error;
         await reload();
         return null;

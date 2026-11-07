@@ -6,6 +6,7 @@ export type LeaderboardScope = 'week' | 'season';
 export interface LeaderboardEntry {
   memberId: string;
   name: string;
+  portrait: string | null;
   points: number;
   rank: number;
 }
@@ -23,6 +24,7 @@ export function useLeaderboard(scope: LeaderboardScope) {
       return data.map((row) => ({
         memberId: row.member_id,
         name: row.name,
+        portrait: row.portrait,
         points: row.points,
         rank: row.rank,
       }));
