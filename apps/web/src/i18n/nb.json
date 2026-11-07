@@ -133,7 +133,6 @@
   "home.closing.hours": "Uken stenger om {h} t {m} min",
   "home.closing.over": "Uken er over. Nye oppdrag kommer mandag.",
   "home.empty": "Nissene fant ikke noe oppdrag til denne luken.",
-  "home.undo.text": "Fullfører om {n} sekunder …",
   "home.undo": "Angre",
   "home.skip.title": "Hoppe over dette oppdraget?",
   "home.skip.body": "Du kan hoppe over ett oppdrag i uken. Du får ingen poeng for det, og du går glipp av bonusen for full uke.",
