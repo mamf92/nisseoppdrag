@@ -5,6 +5,7 @@ import type { Theme } from '../themes/theme';
 import {
   AppNav,
   Badge,
+  ArtPiece,
   Button,
   CATEGORIES,
   CarvedBand,
@@ -98,6 +99,14 @@ function ThemeFrame({ theme }: { theme: Theme }) {
         <Lantern done={2} />
         <Hatches states={WEEK} theme={theme} />
         <Hatches states={WEEK} theme={theme} mini />
+      </Block>
+
+      <Block title="Art pieces">
+        <ArtPiece spot="home" />
+        <ArtPiece spot="leaderboard" />
+        <ArtPiece spot="badges" />
+        <ArtPiece spot="profile" />
+        <ArtPiece spot="office" />
       </Block>
 
       <Block title="Mission cards">

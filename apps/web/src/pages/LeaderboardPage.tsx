@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { useLeaderboard } from '../game/queries';
 import type { LeaderboardScope } from '../game/queries';
 import { useT } from '../i18n/I18nProvider';
-import { Button, LeaderboardRow, NisseAvatar } from '../ui';
+import { ArtPiece, Button, LeaderboardRow, NisseAvatar } from '../ui';
 
 const SCOPES: readonly LeaderboardScope[] = ['week', 'season'];
 
@@ -25,6 +25,8 @@ export function LeaderboardPage() {
         <h1>{t('leaderboard.title')}</h1>
         <p className="n-page__lead">{t('leaderboard.lead')}</p>
       </header>
+
+      <ArtPiece spot="leaderboard" />
 
       <div className="n-segmented" role="group" aria-label={t('leaderboard.scope')}>
         {SCOPES.map((value) => (

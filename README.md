@@ -123,7 +123,7 @@ Vercel settings: Root Directory `apps/web`, framework Vite, other commands left 
 
 ## Experimental PWA
 
-An installable app with Web Push, behind a build flag: **on** in Vercel Previews and local builds, **off** on Vercel Production unless `VITE_PWA=true` (and `VITE_PWA=false` turns it off anywhere). With the flag off, the build ships a service worker that removes itself, so nobody is left with a stale app.
+An installable app with Web Push, behind a build flag: **on** everywhere, Vercel Production included (since 2026-11-07). Setting `VITE_PWA=false` in Vercel and redeploying turns it off; the build then ships a service worker that removes itself, so nobody is left with a stale app.
 
 What it adds (`apps/web/src/pwa`, `apps/web/public/sw.js`, `apps/web/vite-pwa.ts`):
 
@@ -133,7 +133,7 @@ What it adds (`apps/web/src/pwa`, `apps/web/public/sw.js`, `apps/web/vite-pwa.ts
 - Web Push: `push_subscriptions` (RLS, endpoints limited to the known push services), a `push` Edge Function that encrypts (RFC 8291) and signs (VAPID, RFC 8292) with WebCrypto only, Declarative Web Push payloads (Safari 18.4+ shows them without waking the worker), Monday «nye oppdrag» and Thursday reminders via `pg_cron` + `pg_net`, and a test button in Meg.
 - App badge with the number of open missions (Badging API), view transitions between tabs.
 
-Setting up an environment (done for staging):
+Setting up an environment (done for staging, which the live site also uses for now):
 
 1. Apply the migrations. The cron secret is generated inside the database.
 2. Deploy the function: `supabase functions deploy push` (`verify_jwt = false`; it checks the token or cron secret itself). On first use it makes the VAPID key pair and stores it in Vault.

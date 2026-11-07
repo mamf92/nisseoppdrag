@@ -10,7 +10,7 @@ import { generateNisseName, isValidNisseName, NAME_MAX } from '../auth/nisseName
 import { gameErrorKey } from '../game/errors';
 import { useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
-import { Button, LanguageSwitch, NisseAvatar, Sheet, TextField, useToast } from '../ui';
+import { ArtPiece, Button, LanguageSwitch, NisseAvatar, Sheet, TextField, useToast } from '../ui';
 import type { PortraitId } from '../ui';
 import { PortraitPicker } from './PortraitPicker';
 import { FarmerNamePicker } from './FarmerNamePicker';
@@ -226,6 +226,8 @@ export function ProfilePage() {
           </p>
         </section>
       ) : null}
+
+      <ArtPiece spot="profile" />
 
       <section className="n-row">
         <Button

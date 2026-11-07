@@ -133,7 +133,6 @@
   "home.closing.hours": "The week closes in {h} h {m} min",
   "home.closing.over": "The week is over. New missions arrive on Monday.",
   "home.empty": "The nisser found no mission for this hatch.",
-  "home.undo.text": "Completing in {n} seconds …",
   "home.undo": "Undo",
   "home.skip.title": "Skip this mission?",
   "home.skip.body": "You can skip one mission a week. It scores no points and you miss the full-week bonus.",

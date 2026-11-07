@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useT } from '../i18n/I18nProvider';
 import type { MessageKey } from '../i18n/messages';
+import { ArtPiece } from '../ui';
 
 const TABS: readonly { to: string; label: MessageKey; end?: boolean }[] = [
   { to: '/kontor', label: 'admin.tab.overview', end: true },
@@ -21,6 +22,7 @@ export function AdminLayout() {
         <h1>{t('admin.title')}</h1>
         <p className="n-page__lead">{t('admin.lead')}</p>
       </header>
+      <ArtPiece spot="office" />
       <nav aria-label={t('admin.nav')}>
         <ul className="n-tabs">
           {TABS.map((tab) => (
