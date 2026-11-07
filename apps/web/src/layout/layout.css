@@ -373,6 +373,11 @@
   gap: 4px;
   text-align: center;
 }
+/* The chosen portrait, big: about half the sheet on a phone, 240 px from there up. */
+.n-portrait-preview .n-avatar {
+  max-width: min(240px, 56vw);
+  max-height: min(240px, 56vw);
+}
 .n-portrait-preview p {
   margin: 0;
   font-family: var(--font-display-stack);
@@ -413,6 +418,15 @@
   .n-me-head__portrait .n-avatar {
     transition: none;
   }
+}
+/* The buttons stay in reach while the grid scrolls in a short sheet. */
+.n-portrait-actions {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -16px -16px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
 }
 .n-portrait-grid .n-avatar {
   pointer-events: none;

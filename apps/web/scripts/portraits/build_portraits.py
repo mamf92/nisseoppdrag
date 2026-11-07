@@ -2,7 +2,7 @@
 
 No new image generation: every portrait is a head from a sheet the design thread already made
 (L-01 to L-07 round 1, R-01 round 2). Each crop is a square (centre x, centre y, side) in the
-sheet's own pixels. Output: public/art/portraits/<id>-128.webp and -256.webp.
+sheet's own pixels. Output: public/art/portraits/<id>-128, -256 and -512.webp.
 
   python3 scripts/portraits/build_portraits.py <sheet dir> <out dir> [--contact sheet.jpg]
 
@@ -50,7 +50,7 @@ def main() -> None:
     tiles = []
     for pid, (sheet, cx, cy, side) in CROPS.items():
         img = crop(src, sheet, cx, cy, side)
-        for px in (128, 256):
+        for px in (128, 256, 512):
             img.resize((px, px), Image.LANCZOS).save(out / f"{pid}-{px}.webp", "WEBP", quality=82, method=6)
         tiles.append((pid, img.resize((180, 180), Image.LANCZOS)))
     if contact:

@@ -33,5 +33,6 @@ export function asPortrait(value: unknown): PortraitId | null {
 }
 
 export function portraitSrc(id: PortraitId, size: number): string {
-  return `/art/portraits/${id}-${size > 64 ? '256' : '128'}.webp`;
+  const file = size > 128 ? '512' : size > 64 ? '256' : '128';
+  return `/art/portraits/${id}-${file}.webp`;
 }
