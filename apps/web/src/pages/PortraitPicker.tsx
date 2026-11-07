@@ -32,7 +32,7 @@ export function PortraitPicker({
     <form className="n-form" onSubmit={(e) => void submit(e)}>
       <p>{t('portrait.lead')}</p>
       <div className="n-portrait-preview" aria-live="polite">
-        <NisseAvatar portrait={picked} size={112} />
+        <NisseAvatar portrait={picked} size={240} />
         <p>{label(picked)}</p>
       </div>
       <fieldset className="n-portrait-grid">
@@ -53,7 +53,7 @@ export function PortraitPicker({
           </label>
         ))}
       </fieldset>
-      <div className="n-row">
+      <div className="n-row n-portrait-actions">
         <Button type="submit" disabled={busy || picked === value}>
           {t('portrait.use')}
         </Button>

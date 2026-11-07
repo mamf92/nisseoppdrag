@@ -119,9 +119,13 @@ test('the privacy page is public', async ({ page }) => {
   expect(results.violations).toEqual([]);
 });
 
-for (const story of ['gaarden', 'laaven'] as const) {
-  test(`the portrait picker in ${story}`, async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+for (const [story, size] of [
+  ['gaarden', { width: 390, height: 844 }],
+  ['laaven', { width: 390, height: 844 }],
+  ['gaarden', { width: 1280, height: 900 }],
+] as const) {
+  test(`the portrait picker in ${story} at ${String(size.width)} px`, async ({ page }) => {
+    await page.setViewportSize(size);
     await page.addInitScript((value) => {
       window.localStorage.setItem('nisse-theme', value);
     }, story);
@@ -141,6 +145,9 @@ for (const story of ['gaarden', 'laaven'] as const) {
     await expect(dialog.getByRole('radio', { name: 'Låvemusa' })).toBeChecked();
     await dialog.getByRole('radio', { name: 'Fjøskatten' }).check();
     await expect(dialog.locator('.n-portrait-preview')).toHaveText('Fjøskatten');
+    // the chosen portrait is shown large, not as a thumbnail
+    const preview = await dialog.locator('.n-portrait-preview .n-avatar').boundingBox();
+    expect(preview?.width).toBeGreaterThanOrEqual(200);
     // every portrait has its image
     const broken = await page.evaluate(async () => {
       const urls = [...document.querySelectorAll('dialog image')].map(
@@ -151,7 +158,10 @@ for (const story of ['gaarden', 'laaven'] as const) {
     });
     expect(broken).toEqual([]);
     await page.waitForTimeout(300);
-    await page.screenshot({ path: `screenshots/portraits-${story}-390.png`, fullPage: true });
+    await page.screenshot({
+      path: `screenshots/portraits-${story}-${String(size.width)}.png`,
+      fullPage: true,
+    });
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
