@@ -60,7 +60,7 @@ select is(
     'public.can_create_game', 'public.complete_assignment', 'public.create_workplace', 'public.ensure_my_week', 'public.leaderboard', 'public.me',
     'public.platform_create_workplace', 'public.platform_health',
     'public.push_subscribe', 'public.push_unsubscribe', 'public.push_update', 'public.redeem_invite',
-    'public.reroll_assignment', 'public.skip_assignment', 'public.taken_names', 'public.unskip_assignment',
+    'public.reroll_assignment', 'public.set_portrait', 'public.skip_assignment', 'public.taken_names', 'public.unskip_assignment',
     'public.update_profile'],
   'authenticated can execute exactly the allowed functions');
 select is(

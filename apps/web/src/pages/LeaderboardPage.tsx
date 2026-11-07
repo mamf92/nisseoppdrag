@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { useLeaderboard } from '../game/queries';
 import type { LeaderboardScope } from '../game/queries';
 import { useT } from '../i18n/I18nProvider';
-import { ArtPiece, Button, LeaderboardRow } from '../ui';
+import { ArtPiece, Button, LeaderboardRow, NisseAvatar } from '../ui';
 
 const SCOPES: readonly LeaderboardScope[] = ['week', 'season'];
 
@@ -67,6 +67,7 @@ export function LeaderboardPage() {
           {podium.map((row) => (
             <li key={row.memberId}>
               <b aria-label={t('leaderboard.rank', { n: row.rank })}>{row.rank}</b>
+              <NisseAvatar portrait={row.portrait} size={row.rank === 1 ? 64 : 52} />
               <span>
                 {row.memberId === me ? t('leaderboard.me', { name: row.name }) : row.name}
               </span>
@@ -84,6 +85,7 @@ export function LeaderboardPage() {
               rank={row.rank}
               name={row.name}
               points={row.points}
+              portrait={row.portrait}
               me={row.memberId === me}
             />
           ))}
@@ -92,7 +94,13 @@ export function LeaderboardPage() {
 
       {mine && !mineVisibleInList ? (
         <ol className="n-lb-list n-lb-sticky" aria-label={t('leaderboard.yours')}>
-          <LeaderboardRow rank={mine.rank} name={mine.name} points={mine.points} me />
+          <LeaderboardRow
+            rank={mine.rank}
+            name={mine.name}
+            points={mine.points}
+            portrait={mine.portrait}
+            me
+          />
         </ol>
       ) : null}
     </main>

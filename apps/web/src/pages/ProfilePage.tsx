@@ -10,7 +10,9 @@ import { generateNisseName, isValidNisseName, NAME_MAX } from '../auth/nisseName
 import { gameErrorKey } from '../game/errors';
 import { useT } from '../i18n/I18nProvider';
 import { useTheme } from '../themes/ThemeProvider';
-import { ArtPiece, Button, LanguageSwitch, Sheet, TextField, useToast } from '../ui';
+import { ArtPiece, Button, LanguageSwitch, NisseAvatar, Sheet, TextField, useToast } from '../ui';
+import type { PortraitId } from '../ui';
+import { PortraitPicker } from './PortraitPicker';
 import { FarmerNamePicker } from './FarmerNamePicker';
 import { PWA_ENABLED } from '../pwa/flag';
 
@@ -101,9 +103,10 @@ export function ProfilePage() {
   const t = useT();
   const toast = useToast();
   const navigate = useNavigate();
-  const { state, signOut, updateProfile, deleteAccount } = useAuth();
+  const { state, signOut, updateProfile, setPortrait, deleteAccount } = useAuth();
   const { setTheme } = useTheme();
   const [naming, setNaming] = useState<Story | null>(null);
+  const [picking, setPicking] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [typed, setTyped] = useState('');
   const [deleteBusy, setDeleteBusy] = useState(false);
@@ -122,6 +125,16 @@ export function ProfilePage() {
     setTheme(story);
     setNaming(null);
     return null;
+  }
+
+  async function choosePortrait(portrait: PortraitId | null) {
+    const failure = await setPortrait(portrait);
+    if (failure) {
+      toast.show(t(gameErrorKey(failure)), 'error');
+      return;
+    }
+    setPicking(false);
+    toast.show(t('portrait.done'));
   }
 
   function pick(story: Story) {
@@ -150,12 +163,28 @@ export function ProfilePage() {
 
   return (
     <main className="n-page">
-      <header>
-        <h1>{me.name}</h1>
-        <p className="n-page__lead">
-          {me.workplaceName} ·{' '}
-          {t(me.role === 'admin' ? 'profile.role.admin' : 'profile.role.player')}
-        </p>
+      <header className="n-me-head">
+        {me.canPickPortrait ? (
+          <button
+            type="button"
+            className="n-me-head__portrait"
+            onClick={() => {
+              setPicking(true);
+            }}
+          >
+            <NisseAvatar portrait={me.portrait} size={104} />
+            <span>{t('portrait.open')}</span>
+          </button>
+        ) : (
+          <NisseAvatar size={104} />
+        )}
+        <div>
+          <h1>{me.name}</h1>
+          <p className="n-page__lead">
+            {me.workplaceName} ·{' '}
+            {t(me.role === 'admin' ? 'profile.role.admin' : 'profile.role.player')}
+          </p>
+        </div>
       </header>
 
       <section aria-labelledby="story-h">
@@ -229,6 +258,24 @@ export function ProfilePage() {
           {t('profile.delete.open')}
         </Button>
       </section>
+
+      <Sheet
+        open={picking}
+        onClose={() => {
+          setPicking(false);
+        }}
+        title={t('portrait.title')}
+      >
+        {picking ? (
+          <PortraitPicker
+            value={me.portrait}
+            onCancel={() => {
+              setPicking(false);
+            }}
+            onSubmit={choosePortrait}
+          />
+        ) : null}
+      </Sheet>
 
       <Sheet
         open={naming !== null}

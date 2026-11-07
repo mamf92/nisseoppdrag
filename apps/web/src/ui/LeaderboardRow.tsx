@@ -9,12 +9,14 @@ export function LeaderboardRow({
   points,
   me,
   look,
+  portrait,
 }: {
   rank: number;
   name: string;
   points: number;
   me?: boolean;
   look?: AvatarLook;
+  portrait?: string | null;
 }) {
   const t = useT();
   return (
@@ -22,7 +24,7 @@ export function LeaderboardRow({
       <span className="n-lb-rank" aria-label={t('leaderboard.rank', { n: rank })}>
         {rank}
       </span>
-      <NisseAvatar look={look} />
+      <NisseAvatar look={look} portrait={portrait} />
       <span>{me ? t('leaderboard.me', { name }) : name}</span>
       <span className="n-lb-points">{t('leaderboard.points', { n: points })}</span>
     </li>
