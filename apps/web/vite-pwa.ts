@@ -61,7 +61,7 @@ export function pwa(enabled: boolean): Plugin {
         '/index.html',
         '/manifest.webmanifest',
         '/theme-init.js',
-        '/favicon.svg',
+        '/favicon-32.png',
         '/icons/icon-192.png',
         ...emitted.filter((file) => file !== 'index.html').map((file) => `/${file}`),
       ];
