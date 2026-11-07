@@ -61,8 +61,14 @@ export function LoginPage() {
             label={t('auth.email.label')}
             hint={t('auth.email.hint')}
             type="email"
+            name="email"
             autoComplete="email"
             inputMode="email"
+            enterKeyHint="send"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="navn@epost.no"
             value={email}
             error={error}
             onChange={(e) => {
@@ -82,8 +88,15 @@ export function LoginPage() {
       <form className="grid gap-4" onSubmit={(e) => void submitCode(e)} noValidate>
         <TextField
           label={t('auth.code.label')}
+          type="text"
+          name="code"
           inputMode="numeric"
           autoComplete="one-time-code"
+          enterKeyHint="go"
+          pattern="[0-9]*"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           maxLength={6}
           value={code}
           error={error}
