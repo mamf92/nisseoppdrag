@@ -22,6 +22,8 @@ export interface Me {
   farmerName: string | null;
   /** The chosen portrait, or null for the drawn nisse. */
   portrait: PortraitId | null;
+  /** False while the database has no portraits yet (me() lacks the key): the picker stays hidden. */
+  canPickPortrait: boolean;
   isPlatformAdmin: boolean;
 }
 
@@ -92,6 +94,7 @@ export function parseMe(value: unknown): Me | null {
     nisseName: str(value['nisse_name']) ?? null,
     farmerName: str(value['farmer_name']) ?? null,
     portrait: asPortrait(value['portrait']),
+    canPickPortrait: 'portrait' in value,
     isPlatformAdmin: value['is_platform_admin'] === true,
   };
 }

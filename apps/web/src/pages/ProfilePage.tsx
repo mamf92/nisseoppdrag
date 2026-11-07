@@ -164,16 +164,20 @@ export function ProfilePage() {
   return (
     <main className="n-page">
       <header className="n-me-head">
-        <button
-          type="button"
-          className="n-me-head__portrait"
-          onClick={() => {
-            setPicking(true);
-          }}
-        >
-          <NisseAvatar portrait={me.portrait} size={104} />
-          <span>{t('portrait.open')}</span>
-        </button>
+        {me.canPickPortrait ? (
+          <button
+            type="button"
+            className="n-me-head__portrait"
+            onClick={() => {
+              setPicking(true);
+            }}
+          >
+            <NisseAvatar portrait={me.portrait} size={104} />
+            <span>{t('portrait.open')}</span>
+          </button>
+        ) : (
+          <NisseAvatar size={104} />
+        )}
         <div>
           <h1>{me.name}</h1>
           <p className="n-page__lead">

@@ -150,6 +150,13 @@ describe('profile page', () => {
     expect(await screen.findByText('Portrettet er byttet.')).toBeInTheDocument();
   });
 
+  it('hides the picker until the database knows portraits', async () => {
+    const { client } = fakeClient({ session: true, me: MEMBER_ME });
+    renderWithProviders(<App />, { client, route: '/meg' });
+    expect(await screen.findByRole('heading', { name: 'Grøtnissen' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Bytt portrett' })).not.toBeInTheDocument();
+  });
+
   it('can go back to the drawn nisse', async () => {
     const { client, calls } = fakeClient({
       session: true,
