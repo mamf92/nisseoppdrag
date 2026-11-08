@@ -87,6 +87,12 @@
   --rose-leaf: #4d6b2e;
   --rose-line: #fff8ec;
   --rose-dot: #b8862b;
+  /* opened hatch: field behind the gift icon, and the icon itself */
+  --item-in-mix: 55%;
+  --item-in-base: #f4b740;
+  --item-out-mix: 70%;
+  --item-out-base: #161d2b;
+  --item-ink: #fff6ea;
   color-scheme: light;
 }
 
@@ -149,6 +155,13 @@
   --rose-leaf: #a9bc6e;
   --rose-line: #fff6ea;
   --rose-dot: #f4b740;
+  /* the category colours are light here, so the field is dark wood tinted by the category
+     and the icon is warm cream: readable at a glance, still a lantern-lit barn */
+  --item-in-mix: 38%;
+  --item-in-base: #3a2a1e;
+  --item-out-mix: 14%;
+  --item-out-base: #1d1510;
+  --item-ink: #fff0d2;
   color-scheme: dark;
 }
 
