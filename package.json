@@ -18,8 +18,8 @@
     "gen:types": "bash scripts/gen-types.sh"
   },
   "devDependencies": {
-    "http_ece": "1.2.0",
-    "prettier": "^3.9.10",
+    "http_ece": "1.2.1",
+    "prettier": "^3.10.1",
     "supabase": "^2.121.0"
   },
   "pnpm": {
